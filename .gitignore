@@ -1,0 +1,12 @@
+# Secretos y datos locales
+.env
+data/
+
+# Python
+__pycache__/
+.pytest_cache/
+*.db
+
+# Node
+node_modules/
+dist/
