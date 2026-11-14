@@ -2,7 +2,8 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import { useRealtime } from "../hooks/useRealtime";
 import type { User, WaNumber } from "../types";
-import { STATUS_LABEL } from "../util";
+import { Avatar } from "../components";
+import { STATUS_LABEL, numberHue } from "../util";
 
 function QrModal({ number, onClose }: { number: WaNumber; onClose: () => void }) {
   const [src, setSrc] = useState<string | null>(null);
@@ -106,7 +107,7 @@ export default function Numbers({ user }: { user: User }) {
 
   return (
     <div className="page">
-      <h2>Números de WhatsApp</h2>
+      <h2 className="page-title">Números de WhatsApp</h2>
       {isAdmin && (
         <form className="card inline" onSubmit={create}>
           <input
@@ -129,11 +130,11 @@ export default function Numbers({ user }: { user: User }) {
       )}
 
       <div className="grid">
-        {visible.length === 0 && <p className="muted">Todavía no hay números. Creá la primera instancia y escaneá el QR.</p>}
+        {visible.length === 0 && <div className="empty"><strong>Todavía no hay números</strong><span>Creá la primera instancia y escaneá el QR desde WhatsApp.</span></div>}
         {visible.map((n) => (
-          <div key={n.id} className="card number">
+          <div key={n.id} className="card number" style={{ ["--hue" as string]: numberHue(n.id) }}>
             <div className="row">
-              <strong>{n.label}</strong>
+              <span className="number-title"><Avatar name={n.label} numberId={n.id} size={36} /><strong>{n.label}</strong></span>
               <span className={`status s-${n.status}`}>{STATUS_LABEL[n.status] ?? n.status}</span>
             </div>
             <span className="muted small">{n.session_name}{n.phone ? ` · +${n.phone}` : ""}</span>

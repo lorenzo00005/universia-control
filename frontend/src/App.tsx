@@ -4,6 +4,7 @@ import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Numbers from "./pages/Numbers";
 import Pipeline from "./pages/Pipeline";
+import { Icon, OrbitMark } from "./components";
 import type { User } from "./types";
 
 type Tab = "chat" | "pipeline" | "numbers";
@@ -33,29 +34,33 @@ export default function App() {
     setTab("chat");
   };
 
+  const labels: Record<Tab, string> = { chat: "Chat", pipeline: "Pipeline", numbers: "Números" };
+
   return (
     <div className="app">
-      <header className="topbar">
-        <strong className="brand">Universia Control</strong>
-        <nav>
-          {(["chat", "pipeline", "numbers"] as Tab[]).map((t) => (
-            <button key={t} className={tab === t ? "tab active" : "tab"} onClick={() => setTab(t)}>
-              {{ chat: "Chat", pipeline: "Pipeline", numbers: "Números" }[t]}
-            </button>
-          ))}
-        </nav>
+      <nav className="rail" aria-label="Secciones">
+        <span className="brand" title="Universia Control">
+          <OrbitMark size={30} />
+        </span>
+        {(["chat", "pipeline", "numbers"] as Tab[]).map((t) => (
+          <button key={t} className={tab === t ? "rail-tab active" : "rail-tab"} onClick={() => setTab(t)} aria-current={tab === t ? "page" : undefined}>
+            <Icon name={t} />
+            <span>{labels[t]}</span>
+          </button>
+        ))}
         <span className="spacer" />
-        <span className="muted">{user.name}</span>
+        <span className="who" title={user.email}>{user.name}</span>
         <button
-          className="ghost"
+          className="rail-tab"
           onClick={() => {
             setToken(null);
             setUser(null);
           }}
         >
-          Salir
+          <Icon name="logout" />
+          <span>Salir</span>
         </button>
-      </header>
+      </nav>
       <main>
         {tab === "chat" && <Chat user={user} initialConversationId={openConversation} />}
         {tab === "pipeline" && <Pipeline onOpenChat={goToChat} />}

@@ -19,3 +19,15 @@ export const STATUS_LABEL: Record<string, string> = {
   FAILED: "Caído",
   DELETED: "Eliminado",
 };
+
+/** Cada número tiene su propio tono, estable y distinto: se usa en lista, thread y pipeline. */
+export function numberHue(id: number): number {
+  return (id * 67 + 215) % 360;
+}
+
+export function initials(name: string): string {
+  const parts = name.replace(/^\+/, "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const letters = parts.length === 1 ? parts[0].slice(0, 2) : parts[0][0] + parts[1][0];
+  return letters.toUpperCase();
+}

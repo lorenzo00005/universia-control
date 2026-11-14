@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import { useRealtime } from "../hooks/useRealtime";
 import type { Conversation, Stage, WaNumber } from "../types";
+import { Avatar, NumberTag } from "../components";
 import { contactName } from "../util";
 
 export default function Pipeline({ onOpenChat }: { onOpenChat: (conversationId: number) => void }) {
@@ -42,7 +43,7 @@ export default function Pipeline({ onOpenChat }: { onOpenChat: (conversationId: 
 
   return (
     <div className="page wide">
-      <h2>Pipeline de ventas</h2>
+      <h2 className="page-title">Pipeline de ventas</h2>
       {error && <div className="error">{error}</div>}
       <div className="kanban">
         {columns.map((col) => {
@@ -60,9 +61,12 @@ export default function Pipeline({ onOpenChat }: { onOpenChat: (conversationId: 
               </div>
               {items.map((c) => (
                 <div key={c.id} className="kcard" draggable onDragStart={() => setDragging(c.id)} onDragEnd={() => setDragging(null)} onClick={() => onOpenChat(c.id)}>
-                  <strong>{contactName(c.contact)}</strong>
+                  <div className="kcard-top">
+                    <Avatar name={contactName(c.contact)} numberId={c.number_id} size={30} />
+                    <strong>{contactName(c.contact)}</strong>
+                  </div>
                   <span className="preview">{c.last_message_preview}</span>
-                  <span className="tag">{numbers.find((n) => n.id === c.number_id)?.label ?? "—"}</span>
+                  <NumberTag id={c.number_id} label={numbers.find((n) => n.id === c.number_id)?.label ?? "—"} />
                 </div>
               ))}
             </div>

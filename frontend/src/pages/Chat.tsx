@@ -2,6 +2,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { useRealtime } from "../hooks/useRealtime";
 import type { Conversation, Message, Stage, User, WaNumber } from "../types";
+import { Avatar, Icon, NumberTag } from "../components";
 import { contactName, formatTime } from "../util";
 
 function Ticks({ ack }: { ack: number }) {
@@ -128,7 +129,7 @@ export default function Chat({ user, initialConversationId }: { user: User; init
   };
 
   return (
-    <div className="chat">
+    <div className={selected ? "chat has-selection" : "chat"}>
       <aside className="list">
         <div className="filters">
           <select value={numberFilter} onChange={(e) => setNumberFilter(e.target.value === "" ? "" : Number(e.target.value))}>
@@ -142,18 +143,26 @@ export default function Chat({ user, initialConversationId }: { user: User; init
           </label>
         </div>
         <div className="items">
-          {conversations.length === 0 && <p className="muted pad">Sin conversaciones todavía.</p>}
+          {conversations.length === 0 && (
+            <div className="empty">
+              <strong>Todavía no hay conversaciones</strong>
+              <span>Cuando alguien escriba a uno de tus números conectados, el chat aparece acá.</span>
+            </div>
+          )}
           {conversations.map((c) => (
             <button key={c.id} className={c.id === selectedId ? "item active" : "item"} onClick={() => setSelectedId(c.id)}>
-              <div className="row">
-                <strong>{contactName(c.contact)}</strong>
-                <span className="muted small">{formatTime(c.last_message_at)}</span>
+              <Avatar name={contactName(c.contact)} numberId={c.number_id} />
+              <div className="item-body">
+                <div className="row">
+                  <strong>{contactName(c.contact)}</strong>
+                  <span className="muted small time">{formatTime(c.last_message_at)}</span>
+                </div>
+                <div className="row">
+                  <span className="preview">{c.last_message_preview}</span>
+                  {c.unread_count > 0 && <span className="badge">{c.unread_count}</span>}
+                </div>
+                <NumberTag id={c.number_id} label={numberOf(c)?.label ?? "—"} />
               </div>
-              <div className="row">
-                <span className="preview">{c.last_message_preview}</span>
-                {c.unread_count > 0 && <span className="badge">{c.unread_count}</span>}
-              </div>
-              <span className="tag">{numberOf(c)?.label ?? "—"}</span>
             </button>
           ))}
         </div>
@@ -161,12 +170,20 @@ export default function Chat({ user, initialConversationId }: { user: User; init
 
       <section className="thread">
         {!selected ? (
-          <div className="center muted">Elegí una conversación</div>
+          <div className="empty big">
+            <strong>Elegí una conversación</strong>
+            <span>Los chats de todos tus números están en la lista de la izquierda.</span>
+          </div>
         ) : (
           <>
             <div className="thread-head">
-              <strong>{contactName(selected.contact)}</strong>
-              <span className="muted small">{selected.contact.phone ? `+${selected.contact.phone}` : selected.contact.chat_id} · vía {selectedNumber?.label}</span>
+              <button className="back ghost" onClick={() => setSelectedId(null)} aria-label="Volver a la lista"><Icon name="back" /></button>
+              <Avatar name={contactName(selected.contact)} numberId={selected.number_id} size={42} />
+              <div className="head-text">
+                <strong>{contactName(selected.contact)}</strong>
+                <span className="muted small">{selected.contact.phone ? `+${selected.contact.phone}` : selected.contact.chat_id}</span>
+              </div>
+              <NumberTag id={selected.number_id} label={selectedNumber?.label ?? "—"} />
             </div>
             <div className="messages">
               {messages.map((m) => (
@@ -194,8 +211,11 @@ export default function Chat({ user, initialConversationId }: { user: User; init
       <aside className="details">
         {selected && (
           <>
-            <h3>Cliente</h3>
-            <p>{contactName(selected.contact)}</p>
+            <div className="who-card">
+              <Avatar name={contactName(selected.contact)} numberId={selected.number_id} size={56} />
+              <h3>{contactName(selected.contact)}</h3>
+              <NumberTag id={selected.number_id} label={selectedNumber?.label ?? "—"} />
+            </div>
             <label>Etapa</label>
             <select value={selected.stage_id ?? ""} onChange={(e) => change({ stage_id: e.target.value === "" ? null : Number(e.target.value) })}>
               <option value="">Sin etapa</option>
@@ -212,6 +232,7 @@ export default function Chat({ user, initialConversationId }: { user: User; init
                 <p className="small">{selected.campaign}</p>
               </>
             )}
+            <div className="sale-box">
             <label>Venta</label>
             <input
               type="text"
@@ -221,7 +242,8 @@ export default function Chat({ user, initialConversationId }: { user: User; init
               onChange={(e) => { setSaleValue(e.target.value); setSaleNote(""); }}
             />
             <button onClick={markSale}>Marcar como venta</button>
-            {saleNote && <p className="muted small">{saleNote}</p>}
+            {saleNote && <p className="sale-note small">{saleNote}</p>}
+            </div>
             <label>Estado</label>
             <button className="ghost" onClick={() => change({ status: selected.status === "open" ? "closed" : "open" })}>
               {selected.status === "open" ? "Cerrar conversación" : "Reabrir conversación"}
