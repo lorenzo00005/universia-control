@@ -16,6 +16,27 @@ CRM autoalojado con equipo de operadores, pipeline de ventas y mensajes en tiemp
 
 > ⚠️ Proyecto en desarrollo, no afiliado a WhatsApp ni a Meta. Se conecta por QR mediante [WAHA](https://waha.devlike.pro), una vía **no oficial**: leé [Limitaciones](#limitaciones-conocidas) antes de usarlo con números importantes.
 
+## Así se ve
+
+<p align="center">
+  <img src="docs/screenshots/chat.png" alt="Bandeja de chat con todos los números" width="100%">
+</p>
+
+Cada número tiene su propio color, que se repite en el avatar, la etiqueta y el pipeline para saber de un vistazo por cuál escribió cada cliente.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/pipeline.png" alt="Pipeline de ventas"><br><sub>Pipeline de ventas</sub></td>
+    <td width="50%"><img src="docs/screenshots/numeros.png" alt="Gestión de números"><br><sub>Gestión de números</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/login.png" alt="Pantalla de ingreso"><br><sub>Ingreso</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/celular.png" alt="Chat en celular" width="45%"><br><sub>En el celular</sub></td>
+  </tr>
+</table>
+
+> Las capturas usan datos de ejemplo.
+
 ## ¿Qué es?
 
 Si atendés clientes por WhatsApp con varios teléfonos, terminás saltando de celular en celular. **Universia Control** conecta todos esos números a un solo panel web donde tu equipo ve, responde y organiza todas las conversaciones, con los datos en **tu propio servidor**.
