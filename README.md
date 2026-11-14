@@ -112,6 +112,26 @@ docker compose up -d --build
 
 WAHA avisa al backend de cada sesión mediante un webhook global (`WHATSAPP_HOOK_URL` en `docker-compose.yml`), por eso también funcionan las sesiones creadas desde el dashboard de WAHA. Solo se capturan mensajes **nuevos**: no se importa el historial.
 
+## Publicarlo en internet (un dominio, CRM + WAHA)
+
+Con `docker-compose.prod.yml` queda todo detrás de **Caddy** con HTTPS automático (Let's Encrypt):
+
+| URL | Qué es |
+|---|---|
+| `https://crm.tudominio.com` | Panel del CRM |
+| `https://waha.tudominio.com` | Dashboard de WAHA (con usuario/clave extra de Caddy, además del login de WAHA) |
+
+1. Creá dos registros DNS tipo **A** (`crm` y `waha`) apuntando a la IP del servidor.
+2. En el servidor, completá el `.env` con claves propias y las variables de producción (`CRM_DOMAIN`, `WAHA_DOMAIN`, `WAHA_BASIC_HASH`).
+3. Abrí solo los puertos **80 y 443** (y SSH) en el firewall.
+4. Levantá:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+En producción Postgres, el backend, WAHA y el frontend **no publican puertos**: todo entra por Caddy. Los WebSockets del panel funcionan por `wss://` sin configuración extra.
+
 ## API
 
 Documentación completa en `/docs`. Lo principal:

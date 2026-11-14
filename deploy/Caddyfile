@@ -1,0 +1,13 @@
+# CRM (panel + API + WebSocket: el nginx del frontend ya enruta todo)
+{$CRM_DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:80
+}
+
+# Dashboard de WAHA, con una capa extra de usuario/clave antes del login propio de WAHA
+{$WAHA_DOMAIN} {
+	basic_auth {
+		{$WAHA_BASIC_USER} {$WAHA_BASIC_HASH}
+	}
+	reverse_proxy waha:3000
+}
