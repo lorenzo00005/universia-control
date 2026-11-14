@@ -12,6 +12,7 @@ from app.routers import (
     conversation_routes,
     number_routes,
     pipeline_routes,
+    tracking_routes,
     user_routes,
     webhook_routes,
     ws_routes,
@@ -56,12 +57,16 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Control Total WSP Web", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in get_settings().cors_origins.split(",") if o.strip()],
+    allow_origins=[
+        o.strip()
+        for o in f"{get_settings().cors_origins},{get_settings().landing_origins}".split(",")
+        if o.strip()
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
 )
-for module in (auth_routes, number_routes, conversation_routes, pipeline_routes, user_routes, webhook_routes, ws_routes):
+for module in (auth_routes, number_routes, conversation_routes, pipeline_routes, tracking_routes, user_routes, webhook_routes, ws_routes):
     app.include_router(module.router)
 
 

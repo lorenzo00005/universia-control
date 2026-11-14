@@ -6,7 +6,7 @@ const contact = { id: 1, chat_id: "111111111111111@lid", name: "Cliente", phone:
 const conversation = {
   id: 1, number_id: 1, contact, stage_id: 1, assigned_to: null, status: "open", unread_count: 1,
   last_message_at: "2026-11-12T21:33:00Z", last_message_preview: "Hola",
-  first_inbound_at: "2026-11-12T21:33:00Z", first_response_at: null,
+  first_inbound_at: "2026-11-12T21:33:00Z", first_response_at: null, campaign: "black-friday",
 };
 const inMsg = { id: 1, conversation_id: 1, direction: "in", body: "Hola", has_media: false, ack: 0, sent_by: null, created_at: "2026-11-12T21:33:00Z" };
 const outMsg = { id: 2, conversation_id: 1, direction: "out", body: "hola como estas", has_media: false, ack: 0, sent_by: 1, created_at: "2026-11-12T21:38:00Z" };
@@ -29,6 +29,7 @@ const routes: Record<string, unknown> = {
   "GET /conversations/1/messages": [inMsg],
   "POST /conversations/1/read": null,
   "POST /conversations/1/messages": outMsg,
+  "POST /conversations/1/sale": { ...conversation, stage_id: 2 },
 };
 
 beforeEach(() => {
@@ -68,5 +69,19 @@ describe("Chat", () => {
     await waitFor(() => expect(screen.getAllByText(/hola como estas/).length).toBeGreaterThan(0));
     window.removeEventListener("error", onError);
     expect(errors).toEqual([]);
+  });
+
+  it("marca el chat como venta con monto y avisa que se envió a Meta", async () => {
+    render(<Chat user={{ id: 1, email: "a@a", name: "Admin", role: "admin" }} initialConversationId={null} />);
+    fireEvent.click(await screen.findByText("Cliente"));
+    await screen.findByText("black-friday");
+
+    fireEvent.change(screen.getByPlaceholderText("Monto (opcional)"), { target: { value: "15000" } });
+    fireEvent.click(screen.getByText("Marcar como venta"));
+    await screen.findByText("Venta registrada y enviada a Meta.");
+
+    const calls = (fetch as unknown as { mock: { calls: [string, RequestInit][] } }).mock.calls;
+    const sale = calls.find(([path]) => path === "/conversations/1/sale");
+    expect(JSON.parse(sale![1].body as string)).toEqual({ value: 15000 });
   });
 });

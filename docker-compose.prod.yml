@@ -30,6 +30,7 @@ services:
     ports: !reset []
     environment:
       CORS_ORIGINS: https://${CRM_DOMAIN}
+      LANDING_ORIGINS: ${LANDING_ORIGINS:-}
   frontend:
     ports: !reset []
 

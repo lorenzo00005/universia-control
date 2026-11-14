@@ -132,6 +132,45 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 En producción Postgres, el backend, WAHA y el frontend **no publican puertos**: todo entra por Caddy. Los WebSockets del panel funcionan por `wss://` sin configuración extra.
 
+## Conexión con el Pixel de Meta (venta → Purchase)
+
+Pensado para el flujo **anuncio → landing → WhatsApp**. Cuando marcás un chat como venta, el CRM manda un evento `Purchase` a la **API de conversiones** de Meta atribuido al anuncio.
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant L as Landing (Pixel + tracker.js)
+    participant R as CRM
+    participant M as Meta
+    C->>L: clic en el anuncio (fbclid)
+    L->>R: POST /track/click (fbclid, _fbc, _fbp, utm, URL)
+    R-->>L: código corto, ej. K7X2QM
+    C->>R: WhatsApp: "Hola, quiero info [K7X2QM]"
+    R->>R: une el chat con el clic
+    R->>M: Marcar como venta → Purchase (fbc, fbp, IP, teléfono hasheado, monto)
+```
+
+**Configuración**
+
+1. En el Administrador de eventos de Meta: copiá el **ID del Pixel** y generá un **token** de la API de conversiones. Ponelos en `.env` (`META_PIXEL_ID`, `META_ACCESS_TOKEN`) y agregá el dominio de tu landing en `LANDING_ORIGINS`.
+2. En tu landing, después del código del Pixel, pegá el script (ver [`landing/ejemplo.html`](landing/ejemplo.html)):
+
+```html
+<script src="tracker.js" data-crm="https://crm.tudominio.com"></script>
+<a href="#" data-wa-number="5491100000000" data-wa-text="Hola, quiero información">Escribinos</a>
+```
+
+3. Para probar sin afectar campañas, cargá `META_TEST_EVENT_CODE` (sección *Probar eventos* de Meta) y mirá que los eventos aparezcan ahí.
+4. En el chat, panel derecho: **Marcar como venta** (con monto opcional). El chat pasa a *Ganado* y el evento se envía en segundo plano. Podés ver el estado de cada envío en `GET /conversions` y reintentar los fallidos con `POST /conversions/{id}/retry`.
+
+**Qué se envía:** `fbc` y `fbp` del clic, IP y navegador del clic, URL de la landing, teléfono normalizado y hasheado con SHA-256 (nunca en claro), monto y un `event_id`.
+
+**Límites a tener en cuenta**
+- Si el cliente borra el código `[XXXXXX]` del mensaje, ese chat queda sin atribución al anuncio (el evento igual se envía con teléfono hasheado, con peor coincidencia).
+- Los contactos que WhatsApp entrega como `@lid` no traen teléfono: el evento sale sin `ph`.
+- Si el código llega al primer mensaje pero el cliente escribe desde otro número que el que usó en la landing, la atribución sigue funcionando porque se basa en el código, no en el teléfono.
+- Meta atribuye dentro de su ventana (hasta 7 días desde el clic, según la configuración de tu cuenta).
+
 ## API
 
 Documentación completa en `/docs`. Lo principal:
@@ -139,6 +178,7 @@ Documentación completa en `/docs`. Lo principal:
 | Endpoint | Función |
 |---|---|
 | `POST /auth/login` · `GET /auth/me` | Autenticación |
+| `POST /track/click` (público) · `POST /conversations/{id}/sale` · `GET /conversions` · `POST /conversions/{id}/retry` | Seguimiento de clics y envío de ventas a Meta |
 | `GET/POST /numbers` · `POST /numbers/sync` · `GET /numbers/{id}/qr` · `/status` · `POST /numbers/{id}/restart` · `DELETE /numbers/{id}` | Números de WhatsApp |
 | `GET /conversations` · `GET/POST /conversations/{id}/messages` · `PATCH /conversations/{id}` · `POST /conversations/{id}/read` | Bandeja |
 | `GET/POST /stages` | Etapas del pipeline |
@@ -201,7 +241,7 @@ No: la base vive en un volumen de Docker y las sesiones de WhatsApp en `data/wah
 ## Hoja de ruta
 
 - [ ] Reportes: tiempos de respuesta, volumen por número y conversiones por campaña
-- [ ] Meta Conversions API (eventos al mover etapas del pipeline)
+- [x] Meta Conversions API: venta → Purchase desde la landing (pendiente: otros eventos al mover etapas, Cloud API con ctwa_clid)
 - [ ] Monitoreo de sesiones caídas con alertas y reconexión automática
 - [ ] Backups automáticos de la base y de las sesiones
 - [ ] Imágenes, audios y documentos

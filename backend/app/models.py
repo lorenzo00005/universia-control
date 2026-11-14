@@ -101,3 +101,53 @@ class Message(Base):
     ack: Mapped[int] = mapped_column(default=0)
     sent_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+
+class ClickTrack(Base):
+    """Clic en la landing: guarda los datos que Meta necesita para atribuir la venta al anuncio."""
+
+    __tablename__ = "click_tracks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(String(12), unique=True, index=True)
+    fbclid: Mapped[str | None] = mapped_column(String(500), default=None)
+    fbc: Mapped[str | None] = mapped_column(String(500), default=None)
+    fbp: Mapped[str | None] = mapped_column(String(200), default=None)
+    client_ip: Mapped[str | None] = mapped_column(String(64), default=None)
+    user_agent: Mapped[str | None] = mapped_column(String(500), default=None)
+    source_url: Mapped[str | None] = mapped_column(String(1000), default=None)
+    utm_source: Mapped[str | None] = mapped_column(String(160), default=None)
+    utm_medium: Mapped[str | None] = mapped_column(String(160), default=None)
+    utm_campaign: Mapped[str | None] = mapped_column(String(160), default=None)
+    utm_content: Mapped[str | None] = mapped_column(String(160), default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ConversationAttribution(Base):
+    """Une una conversación con el clic de la landing que la originó."""
+
+    __tablename__ = "conversation_attributions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), unique=True)
+    click_id: Mapped[int] = mapped_column(ForeignKey("click_tracks.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ConversionEvent(Base):
+    """Evento enviado (o por enviar) a la Conversions API de Meta."""
+
+    __tablename__ = "conversion_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
+    event_name: Mapped[str] = mapped_column(String(40), default="Purchase")
+    event_id: Mapped[str] = mapped_column(String(80), unique=True)
+    value: Mapped[float | None] = mapped_column(default=None)
+    currency: Mapped[str] = mapped_column(String(3), default="ARS")
+    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending | sent | failed | not_configured
+    attempts: Mapped[int] = mapped_column(default=0)
+    response: Mapped[str | None] = mapped_column(Text, default=None)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)

@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     admin_email: str = "admin@example.com"
     admin_password: str = "change-me"
     cors_origins: str = "http://localhost:5173"
+    # Dominios de las landings que llaman a /track/click (separados por coma)
+    landing_origins: str = ""
+    # Meta Conversions API (Pixel). Sin estos datos los eventos quedan en "not_configured".
+    meta_pixel_id: str = ""
+    meta_access_token: str = ""
+    meta_api_version: str = "v21.0"
+    meta_test_event_code: str = ""  # para probar en "Probar eventos" del Administrador de eventos
+    meta_default_currency: str = "ARS"
 
 
 @lru_cache

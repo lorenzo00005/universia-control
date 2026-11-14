@@ -99,6 +99,26 @@ export default function Chat({ user, initialConversationId }: { user: User; init
     }
   };
 
+  const [saleValue, setSaleValue] = useState("");
+  const [saleNote, setSaleNote] = useState("");
+
+  const markSale = () => {
+    if (!selected) return;
+    const value = saleValue.trim() === "" ? null : Number(saleValue.replace(",", "."));
+    if (value !== null && (Number.isNaN(value) || value < 0)) {
+      setError("El monto no es válido");
+      return;
+    }
+    api
+      .markSale(selected.id, value)
+      .then((c) => {
+        setConversations((prev) => prev.map((x) => (x.id === c.id ? c : x)));
+        setSaleValue("");
+        setSaleNote("Venta registrada y enviada a Meta.");
+      })
+      .catch((err) => setError(err.message));
+  };
+
   const change = (changes: Parameters<typeof api.updateConversation>[1]) => {
     if (!selected) return;
     api
@@ -186,6 +206,22 @@ export default function Chat({ user, initialConversationId }: { user: User; init
               <option value="">Sin asignar</option>
               {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
+            {selected.campaign && (
+              <>
+                <label>Campaña</label>
+                <p className="small">{selected.campaign}</p>
+              </>
+            )}
+            <label>Venta</label>
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder="Monto (opcional)"
+              value={saleValue}
+              onChange={(e) => { setSaleValue(e.target.value); setSaleNote(""); }}
+            />
+            <button onClick={markSale}>Marcar como venta</button>
+            {saleNote && <p className="muted small">{saleNote}</p>}
             <label>Estado</label>
             <button className="ghost" onClick={() => change({ status: selected.status === "open" ? "closed" : "open" })}>
               {selected.status === "open" ? "Cerrar conversación" : "Reabrir conversación"}

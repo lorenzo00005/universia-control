@@ -10,6 +10,7 @@ export interface Conversation {
   assigned_to: number | null; status: string; unread_count: number;
   last_message_at: string | null; last_message_preview: string | null;
   first_inbound_at: string | null; first_response_at: string | null;
+  campaign: string | null;
 }
 export interface Message {
   id: number; conversation_id: number; direction: "in" | "out"; body: string;

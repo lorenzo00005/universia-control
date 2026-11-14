@@ -68,6 +68,7 @@ class ConversationOut(ORM):
     last_message_preview: str | None
     first_inbound_at: datetime | None
     first_response_at: datetime | None
+    campaign: str | None = None
 
 
 class ConversationUpdate(BaseModel):
@@ -89,3 +90,39 @@ class MessageOut(ORM):
 
 class SendMessageIn(BaseModel):
     text: str = Field(min_length=1, max_length=4000)
+
+
+class ClickIn(BaseModel):
+    """Lo que manda el script de la landing."""
+
+    fbclid: str | None = Field(default=None, max_length=500)
+    fbc: str | None = Field(default=None, max_length=500)
+    fbp: str | None = Field(default=None, max_length=200)
+    source_url: str | None = Field(default=None, max_length=1000)
+    utm_source: str | None = Field(default=None, max_length=160)
+    utm_medium: str | None = Field(default=None, max_length=160)
+    utm_campaign: str | None = Field(default=None, max_length=160)
+    utm_content: str | None = Field(default=None, max_length=160)
+
+
+class ClickOut(BaseModel):
+    code: str
+
+
+class SaleIn(BaseModel):
+    value: float | None = Field(default=None, ge=0)
+    currency: str | None = Field(default=None, pattern=r"^[A-Za-z]{3}$")
+
+
+class ConversionEventOut(ORM):
+    id: int
+    conversation_id: int
+    event_name: str
+    event_id: str
+    value: float | None
+    currency: str
+    status: str
+    attempts: int
+    response: str | None
+    created_at: datetime
+    sent_at: datetime | None

@@ -14,6 +14,7 @@ from app.models import (
     utcnow,
 )
 from app.schemas import ConversationOut, MessageOut
+from app.services.attribution import attribute_conversation
 
 
 def find_key(data: object, key: str) -> str | None:
@@ -187,6 +188,8 @@ def ingest_waha_event(db: Session, body: dict) -> dict | None:
             return None
         if not from_me and not conversation.ctwa_clid:
             conversation.ctwa_clid = find_key(raw, "ctwaClid")
+        if not from_me:
+            attribute_conversation(db, conversation, payload.get("body") or "")
         db.commit()
         db.refresh(conversation)
         return message_event(conversation, message)

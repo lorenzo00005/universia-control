@@ -81,4 +81,7 @@ export const api = {
     request<Message>(`/conversations/${id}/messages`, { method: "POST", ...json({ text }) }),
   updateConversation: (id: number, changes: Partial<Pick<Conversation, "stage_id" | "assigned_to" | "status">>) =>
     request<Conversation>(`/conversations/${id}`, { method: "PATCH", ...json(changes) }),
+  // Marca el chat como venta, lo pasa a "Ganado" y envía Purchase a Meta (segundo plano)
+  markSale: (id: number, value: number | null) =>
+    request<Conversation>(`/conversations/${id}/sale`, { method: "POST", ...json({ value }) }),
 };
