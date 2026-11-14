@@ -144,3 +144,7 @@ def test_system_info_requires_login_and_returns_waha_url(client, auth):
     r = client.get("/system/info", headers=auth)
     assert r.status_code == 200
     assert r.json()["waha_dashboard_url"].startswith("http")
+
+
+def test_system_info_points_to_dashboard_path(client, auth):
+    assert client.get("/system/info", headers=auth).json()["waha_dashboard_url"].endswith("/dashboard")
