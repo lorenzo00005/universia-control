@@ -4,10 +4,11 @@ import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Numbers from "./pages/Numbers";
 import Pipeline from "./pages/Pipeline";
+import Waha from "./pages/Waha";
 import { Icon, OrbitMark } from "./components";
 import type { User } from "./types";
 
-type Tab = "chat" | "pipeline" | "numbers";
+type Tab = "chat" | "pipeline" | "numbers" | "waha";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +35,7 @@ export default function App() {
     setTab("chat");
   };
 
-  const labels: Record<Tab, string> = { chat: "Chat", pipeline: "Pipeline", numbers: "Números" };
+  const labels: Record<Tab, string> = { chat: "Chat", pipeline: "Pipeline", numbers: "Números", waha: "WAHA" };
 
   return (
     <div className="app">
@@ -42,7 +43,7 @@ export default function App() {
         <span className="brand" title="Universia Control">
           <OrbitMark size={30} />
         </span>
-        {(["chat", "pipeline", "numbers"] as Tab[]).map((t) => (
+        {(["chat", "pipeline", "numbers", "waha"] as Tab[]).map((t) => (
           <button key={t} className={tab === t ? "rail-tab active" : "rail-tab"} onClick={() => setTab(t)} aria-current={tab === t ? "page" : undefined}>
             <Icon name={t} />
             <span>{labels[t]}</span>
@@ -65,6 +66,7 @@ export default function App() {
         {tab === "chat" && <Chat user={user} initialConversationId={openConversation} />}
         {tab === "pipeline" && <Pipeline onOpenChat={goToChat} />}
         {tab === "numbers" && <Numbers user={user} />}
+        {tab === "waha" && <Waha />}
       </main>
     </div>
   );

@@ -36,6 +36,19 @@ services:
     ports:
       - "127.0.0.1:3000:3000"        # solo local; el backend entra por la red interna
 
+  # Mismo dashboard de WAHA, pero incrustable dentro del panel (pestaña "WAHA").
+  waha-embed:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    environment:
+      FRAME_ANCESTORS: ${FRAME_ANCESTORS:-http://localhost:5173 http://127.0.0.1:5173}
+    volumes:
+      - ./deploy/waha-embed.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      - waha
+    ports:
+      - "127.0.0.1:3001:80"
+
   backend:
     build: ./backend
     restart: unless-stopped
@@ -44,6 +57,7 @@ services:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       WAHA_URL: http://waha:3000
       BACKEND_INTERNAL_URL: http://backend:8000
+      WAHA_PUBLIC_URL: ${WAHA_PUBLIC_URL:-http://localhost:3001}
     depends_on:
       postgres:
         condition: service_healthy

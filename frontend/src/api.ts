@@ -54,6 +54,7 @@ export const api = {
     return (await res.json()).access_token as string;
   },
   me: () => request<User>("/auth/me"),
+  systemInfo: () => request<{ waha_dashboard_url: string }>("/system/info"),
   users: () => request<User[]>("/users"),
 
   numbers: () => request<WaNumber[]>("/numbers"),

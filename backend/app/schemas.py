@@ -126,3 +126,7 @@ class ConversionEventOut(ORM):
     response: str | None
     created_at: datetime
     sent_at: datetime | None
+
+
+class SystemInfoOut(BaseModel):
+    waha_dashboard_url: str

@@ -48,6 +48,7 @@ Si atendés clientes por WhatsApp con varios teléfonos, terminás saltando de c
 | 💬 | **Chat unificado** | Conversaciones de todos los números juntas; filtro por número y "solo mías"; respuesta desde el panel; tildes de enviado / entregado / leído |
 | ⚡ | **Tiempo real** | Los mensajes aparecen al instante (WebSocket con reconexión automática) |
 | 📱 | **Gestión de números** | Crear instancias, escanear el QR desde el panel, ver el estado (conectado / esperando QR / caído), reiniciar y eliminar. Importa solo las sesiones ya existentes en WAHA |
+| 🧩 | **WAHA integrado** | Pestaña *WAHA* dentro del panel: el dashboard de WAHA (sesiones, QR, API, logs) se ve en el mismo sistema, sin salir del CRM |
 | 🧲 | **Pipeline de ventas** | Tablero kanban (Nuevo → Contactado → Calificado → Propuesta → Ganado / Perdido); se mueve con arrastrar y soltar |
 | 👥 | **Equipo** | Login con JWT, roles administrador / operador y asignación de conversaciones |
 | 📊 | **Datos para reportes y Meta Ads** | Se guardan la hora del primer mensaje y de la primera respuesta, el `ctwa_clid` de anuncios Click-to-WhatsApp (si llega) y el historial de estados de cada sesión |
@@ -89,6 +90,7 @@ El backend no habla con WhatsApp directamente sino a través de una **capa de pr
 | `frontend` | React + Vite + TypeScript, servido por nginx | 5173 |
 | `backend` | FastAPI + SQLAlchemy | 8000 |
 | `waha` | WAHA (WhatsApp HTTP API), motor GOWS | 3000 (solo local) |
+| `waha-embed` | nginx que deja incrustar el dashboard de WAHA en la pestaña *WAHA* | 3001 (solo local) |
 | `postgres` | PostgreSQL 16 | interno |
 
 ## Puesta en marcha
@@ -106,11 +108,12 @@ docker compose up -d --build
 |---|---|
 | http://localhost:5173 | **Panel** (usuario y contraseña: `ADMIN_EMAIL` / `ADMIN_PASSWORD` del `.env`) |
 | http://localhost:8000/docs | Documentación interactiva de la API |
-| http://localhost:3000/dashboard | Dashboard de WAHA |
+| http://localhost:5173 → pestaña **WAHA** | Dashboard de WAHA dentro del panel (se sirve desde `localhost:3001`) |
+| http://localhost:3000/dashboard | Dashboard de WAHA directo (opcional) |
 
 > El administrador se crea solo la primera vez que arranca la base. Si cambiás `ADMIN_EMAIL` o `ADMIN_PASSWORD` después, hay que borrar los datos: `docker compose down -v`.
 
-**Dashboard de WAHA:** al abrirlo por primera vez, en el panel *Workers* tocá el lápiz y pegá `WAHA_API_KEY` del `.env` para que pueda administrar las sesiones.
+**Dashboard de WAHA:** desde la pestaña *WAHA* del panel (o directo) ingresá con `WAHA_DASHBOARD_USERNAME` / `WAHA_DASHBOARD_PASSWORD`. Al abrirlo por primera vez, en el panel *Workers* tocá el lápiz y pegá `WAHA_API_KEY` del `.env` para que pueda administrar las sesiones.
 
 ### Variables de entorno
 
@@ -140,7 +143,7 @@ Con `docker-compose.prod.yml` queda todo detrás de **Caddy** con HTTPS automát
 | URL | Qué es |
 |---|---|
 | `https://crm.tudominio.com` | Panel del CRM |
-| `https://waha.tudominio.com` | Dashboard de WAHA (con usuario/clave extra de Caddy, además del login de WAHA) |
+| `https://waha.tudominio.com` | Dashboard de WAHA (con usuario/clave extra de Caddy, además del login de WAHA). También aparece dentro del panel, en la pestaña *WAHA* |
 
 1. Creá dos registros DNS tipo **A** (`crm` y `waha`) apuntando a la IP del servidor.
 2. En el servidor, completá el `.env` con claves propias y las variables de producción (`CRM_DOMAIN`, `WAHA_DOMAIN`, `WAHA_BASIC_HASH`).

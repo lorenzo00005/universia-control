@@ -137,3 +137,10 @@ def test_client_error_is_not_retried(client, auth, number, monkeypatch):
     finally:
         monkeypatch.undo()
         get_settings.cache_clear()
+
+
+def test_system_info_requires_login_and_returns_waha_url(client, auth):
+    assert client.get("/system/info").status_code == 401
+    r = client.get("/system/info", headers=auth)
+    assert r.status_code == 200
+    assert r.json()["waha_dashboard_url"].startswith("http")

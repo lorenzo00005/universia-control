@@ -1,0 +1,28 @@
+# Deja ver el dashboard de WAHA dentro del panel del CRM (iframe).
+# WAHA no permite que otra página lo incruste; este proxy quita esa restricción
+# y la reemplaza por una más estricta: solo se puede incrustar desde el CRM.
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ""      close;
+}
+
+server {
+  listen 80;
+
+  location / {
+    proxy_pass http://waha:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $http_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_read_timeout 3600s;
+    client_max_body_size 64m;
+
+    proxy_hide_header X-Frame-Options;
+    proxy_hide_header Content-Security-Policy;
+    add_header Content-Security-Policy "frame-ancestors 'self' ${FRAME_ANCESTORS}" always;
+  }
+}

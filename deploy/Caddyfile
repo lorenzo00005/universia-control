@@ -9,5 +9,5 @@
 	basic_auth {
 		{$WAHA_BASIC_USER} {$WAHA_BASIC_HASH}
 	}
-	reverse_proxy waha:3000
+	reverse_proxy waha-embed:80
 }

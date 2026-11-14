@@ -12,6 +12,7 @@ from app.routers import (
     conversation_routes,
     number_routes,
     pipeline_routes,
+    system_routes,
     tracking_routes,
     user_routes,
     webhook_routes,
@@ -66,7 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
-for module in (auth_routes, number_routes, conversation_routes, pipeline_routes, tracking_routes, user_routes, webhook_routes, ws_routes):
+for module in (auth_routes, number_routes, conversation_routes, pipeline_routes, system_routes, tracking_routes, user_routes, webhook_routes, ws_routes):
     app.include_router(module.router)
 
 

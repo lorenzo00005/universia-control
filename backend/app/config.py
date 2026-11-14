@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./dev.db"
     waha_url: str = "http://waha:3000"
     waha_api_key: str = ""
+    # Dirección (vista desde el navegador) del dashboard de WAHA, para la pestaña "WAHA" del panel
+    waha_public_url: str = "http://localhost:3001"
     backend_internal_url: str = "http://backend:8000"
     webhook_secret: str = "change-me"
     jwt_secret: str = "change-me"
