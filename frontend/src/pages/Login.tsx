@@ -25,7 +25,7 @@ export default function Login({ onLogin }: { onLogin: (user: User) => void }) {
   return (
     <div className="center">
       <form className="card login" onSubmit={submit}>
-        <h1>Control Total WSP Web</h1>
+        <h1>Universia Control</h1>
         <p className="muted">Todos tus números de WhatsApp en un solo lugar</p>
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
         <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />

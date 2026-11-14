@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🟢 Control Total WSP Web
+# 🟢 Universia Control
 
 **Todos tus números de WhatsApp en una sola bandeja.**
 CRM autoalojado con equipo de operadores, pipeline de ventas y mensajes en tiempo real.
@@ -18,7 +18,7 @@ CRM autoalojado con equipo de operadores, pipeline de ventas y mensajes en tiemp
 
 ## ¿Qué es?
 
-Si atendés clientes por WhatsApp con varios teléfonos, terminás saltando de celular en celular. **Control Total WSP Web** conecta todos esos números a un solo panel web donde tu equipo ve, responde y organiza todas las conversaciones, con los datos en **tu propio servidor**.
+Si atendés clientes por WhatsApp con varios teléfonos, terminás saltando de celular en celular. **Universia Control** conecta todos esos números a un solo panel web donde tu equipo ve, responde y organiza todas las conversaciones, con los datos en **tu propio servidor**.
 
 ## Funciones
 
@@ -75,8 +75,8 @@ El backend no habla con WhatsApp directamente sino a través de una **capa de pr
 **Requisitos:** Docker con Docker Compose y un teléfono con WhatsApp por cada número a vincular.
 
 ```bash
-git clone https://github.com/lorenzo00005/control-total-wsp-web.git
-cd control-total-wsp-web
+git clone https://github.com/lorenzo00005/universia-control.git
+cd universia-control
 cp .env.example .env        # cambiar TODAS las claves "cambiar-esto"
 docker compose up -d --build
 ```

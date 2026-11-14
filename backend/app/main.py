@@ -54,7 +54,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Control Total WSP Web", lifespan=lifespan)
+app = FastAPI(title="Universia Control", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

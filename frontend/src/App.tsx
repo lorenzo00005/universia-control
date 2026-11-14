@@ -36,7 +36,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <strong className="brand">Control Total WSP</strong>
+        <strong className="brand">Universia Control</strong>
         <nav>
           {(["chat", "pipeline", "numbers"] as Tab[]).map((t) => (
             <button key={t} className={tab === t ? "tab active" : "tab"} onClick={() => setTab(t)}>

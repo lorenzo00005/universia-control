@@ -1,5 +1,5 @@
 /*
- * Control Total WSP Web - script para la landing.
+ * Universia Control - script para la landing.
  * 1) Al cargar, manda a tu CRM los datos del clic del anuncio (fbclid, _fbc, _fbp, utm_*) y recibe un código corto.
  * 2) Los botones con data-wa-number abren WhatsApp con el mensaje + ese código ([K7X2QM]).
  *    El CRM lo lee en el primer mensaje y une el chat con el clic.
