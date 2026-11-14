@@ -253,11 +253,104 @@ No: la base vive en un volumen de Docker y las sesiones de WhatsApp en `data/wah
 
 ## Limitaciones conocidas
 
-- **Vía no oficial:** las sesiones pueden caerse y los números pueden ser bloqueados por WhatsApp.
+- **Vía no oficial:** las sesiones pueden caerse y los números pueden ser bloqueados por WhatsApp. Leé la [guía para cuidar tus números](#cómo-cuidar-tus-números-guía-anti-bloqueo).
 - Las tablas se crean con `create_all`; falta migrar a **Alembic** antes de producción.
 - El tiempo real usa un hub en memoria; con más de un worker hay que pasarlo a Redis pub/sub.
 - Todavía no se envían ni se muestran **archivos multimedia**; los grupos y los estados se ignoran.
 - Fijar la versión de la imagen de WAHA (`devlikeapro/waha:latest` en el compose) antes de producción.
+
+### Cómo cuidar tus números (guía anti-bloqueo)
+
+WAHA se conecta por QR como un dispositivo vinculado, algo que WhatsApp no permite oficialmente: sus [normas de mensajería](https://www.whatsapp.com/legal/messaging-guidelines) prohíben los clientes no oficiales, el envío masivo y la automatización. **No existe una práctica que garantice 0 % de riesgo**; el objetivo es parecerse a una persona real atendiendo clientes y mantener las denuncias en cero. Meta no publica los umbrales exactos: las cifras de abajo son referencias de la documentación de WAHA y de proveedores del rubro (Green API, Whapi, Z-API, Periskope), no reglas oficiales.
+
+#### 1. La regla que más pesa: que el cliente escriba primero
+
+La propia guía de WAHA lo pone primero: el bot no debería iniciar conversaciones, sino responder. Este CRM está pensado para eso (anuncio → landing → el cliente toca el botón de WhatsApp y te escribe). Iniciar chats con desconocidos es lo que más bloqueos causa, porque cada "Bloquear y reportar" resta confianza al número. Un puñado de reportes seguidos alcanza para que lo limiten.
+
+#### 2. Antes de conectar un número
+
+- Usá **números calientes**: con historia real de uso (meses de chats, contactos que lo tienen guardado), no un chip recién comprado.
+- Si el número es nuevo, **no escanees el QR el mismo día** del registro: esperá al menos un día y usalo antes como una persona (chats con conocidos, fotos, audios, algún grupo chico).
+- Nunca conectes un chip que **nunca recibió un mensaje de WhatsApp**: un número sin historial que de golpe manda mensajes es el perfil típico de una granja de spam.
+- Completá el perfil: **foto, nombre y estado**.
+- Seguí **abriendo la app en el celular** de vez en cuando y respondiendo algo a mano. Un número usado solo por automatización es más sospechoso.
+- Pedí a los clientes que **guarden tu número** en sus contactos: baja mucho las denuncias por "remitente desconocido".
+- Mantené un número de **tu país** y, si podés, un servidor con IP del mismo país o cercana; los desajustes (número argentino conectado siempre desde otro continente) suman señales negativas.
+
+#### 3. Calentamiento y ritmo
+
+Referencia habitual de los proveedores para un número nuevo (adaptala, no la tomes como regla):
+
+| Momento | Qué hacer |
+|---|---|
+| Día 1 | Chats manuales con 3–6 contactos que respondan. Texto, alguna imagen o sticker. Sin automatizar. |
+| Día 2 | Subir a 10–15 conversaciones. Mensajes variados, ~1 por minuto como máximo. |
+| Días 3–6 | Sumar contactos y mensajes de a poco; participar en 1–2 grupos chicos (3–5 personas). |
+| Día 7 en adelante | Entre ~12 y ~100 mensajes por día, según respuestas. Después del día 10 el número es bastante más resistente. |
+| Semanas siguientes | Escalar por **semana**, no por día. Subir 10–20 % por vez, nunca saltar de 50 a 5.000. |
+
+Límites prudentes que se repiten en las guías: un número nuevo no debería pasar de unos **50 mensajes por día**, ni de ~30 por hora, y conviene mantener que **por lo menos 3 de cada 10 mensajes enviados reciban respuesta**. Un número con 10 días de calentamiento aguanta solo un par de decenas de conversaciones **nuevas** por día. Como en este CRM la mayoría son respuestas a clientes que escribieron primero, esos límites rara vez se rozan; sí importan si vas a escribirles a contactos.
+
+#### 4. Cómo responder sin parecer un bot
+
+Estas son las recomendaciones de la guía oficial de WAHA para el flujo de respuesta:
+
+1. **Marcar como leído** antes de contestar (`POST /api/sendSeen`).
+2. **Mostrar "escribiendo…"** (`startTyping`), esperar un tiempo aleatorio proporcional al largo del mensaje y **recién ahí enviar** (`stopTyping` + `sendText`).
+3. **Evitar tiempos fijos**: enviar, esperar entre 30 y 60 segundos al azar y recién entonces el siguiente.
+4. **Variar el texto** y personalizar (por ejemplo con el nombre). No mandar el mismo bloque a muchas personas en pocos minutos.
+5. Si le escribís a alguien por primera vez: **un solo mensaje corto**, sin links ni textos largos.
+6. **Enviar en tandas**: por ejemplo, como máximo 4 mensajes por hora a un mismo contacto que ya respondió, y pausar antes de la siguiente tanda.
+7. Usar solo links **HTTPS** y evitar los que ya fueron marcados como spam.
+8. Cuidar el contenido: los temas con palabras de estafas financieras ("PIX", "boleto", "tarjeta" y similares) se vigilan más.
+
+> Hoy el CRM envía el mensaje directo por `sendText`. Los pasos 1 y 2 (visto y "escribiendo…" con pausa aleatoria) están en la hoja de ruta.
+
+#### 5. Qué evitar
+
+- Escribirle en masa a desconocidos, usar **listas compradas** o contactar a quien nunca te respondió.
+- Mensajes idénticos a muchos contactos, o a intervalos exactos (cada 10 s).
+- **Ignorar un pedido de baja**: si alguien dice "no me escribas más", dejá de escribirle de inmediato.
+- Agregar mucha gente a grupos de golpe (como mucho 15–20 contactos por día).
+- Usar **varias herramientas no oficiales** a la vez sobre el mismo número, o apps modificadas (GBWhatsApp y similares).
+- Instalar forks dudosos de librerías de WhatsApp: ya hubo un paquete de npm que robaba sesiones. Usá solo la imagen oficial de WAHA y fijá su versión.
+
+#### 6. Repartí la carga y aislá el riesgo
+
+El CRM acepta tantos números como quieras: aprovechalo. Repartir los contactos entre varios números baja el volumen de cada uno, y separar roles (por ejemplo, **ventas**, **soporte** y **campañas**) evita que el problema de un número arrastre al resto.
+
+#### 7. Señales de alerta y qué hacer
+
+| Señal | Qué significa | Qué hacer |
+|---|---|---|
+| Error `463` al escribir a un contacto nuevo, pero la sesión sigue en `WORKING` | Restricción temporal para contactar gente nueva | **No reinicies, no cierres sesión ni vuelvas a vincular.** Pausá los contactos nuevos: se levanta sola. |
+| Error `475` / estado `CAPPED` | Cupo de contactos nuevos agotado en el ciclo | Igual que arriba: no reiniciar, esperar el reinicio del ciclo. |
+| Avisos `FIRST_WARNING` / `SECOND_WARNING` | WhatsApp avisa que el ritmo es excesivo | Bajar el ritmo ya. |
+| Mensaje "tu cuenta está restringida" en el celular | Actividad con aspecto de spam o automatización | Frenar todo envío, volver a usar el número a mano unos días. |
+| La sesión se cae seguido | Puede ser inestabilidad o un castigo previo | Revisar el panel de Números; si se repite, reducir actividad y no reconectar en bucle. |
+
+Desde 2025 varios proveedores reportan que las suspensiones llegan **sin advertencia previa**, así que el monitoreo y los backups de sesión importan.
+
+#### 8. Si el número igual se bloquea
+
+- Pedí la revisión desde la propia app de WhatsApp.
+- **No lo reconectes igual**: tras un bloqueo el calentamiento se reinicia de cero y el segundo bloqueo llega más rápido.
+- Si tenés que usar un número nuevo, calentalo desde el día 1 y **no lo configures idéntico** al anterior (mismo nombre, foto, descripción y mensajes): WhatsApp puede asociarlos.
+
+#### 9. Cuándo conviene la API oficial
+
+Para **campañas de envío masivo**, para números críticos del negocio o si no podés arriesgar el número, la vía correcta es la **Cloud API oficial de Meta**. Está en la hoja de ruta como proveedor alternativo y, además, es la que entrega el `ctwa_clid` de los anuncios Click-to-WhatsApp.
+
+#### Checklist rápido
+
+- [ ] El cliente escribe primero (landing, anuncio o botón de WhatsApp).
+- [ ] Número con historia real, perfil completo y contactos que lo tienen guardado.
+- [ ] Calentado antes de conectarlo y escalado por semana.
+- [ ] Respuestas variadas, con pausas, y sin mensajes idénticos en tandas.
+- [ ] Pedidos de baja respetados al instante.
+- [ ] Carga repartida entre varios números por rol.
+- [ ] Versión de WAHA fija y backup de las sesiones.
+- [ ] Si aparece 463 o 475: no reiniciar, esperar y bajar el ritmo.
 
 ## Hoja de ruta
 
@@ -265,6 +358,8 @@ No: la base vive en un volumen de Docker y las sesiones de WhatsApp en `data/wah
 - [x] Meta Conversions API: venta → Purchase desde la landing (pendiente: otros eventos al mover etapas, Cloud API con ctwa_clid)
 - [ ] Monitoreo de sesiones caídas con alertas y reconexión automática
 - [ ] Backups automáticos de la base y de las sesiones
+- [ ] Envío más humano: marcar como leído y "escribiendo…" con pausa aleatoria antes de cada respuesta
+- [ ] Alertas de errores 463/475 y avisos de WhatsApp en el panel de Números
 - [ ] Imágenes, audios y documentos
 - [ ] Alta de operadores desde el panel
 - [ ] Migración a AWS
