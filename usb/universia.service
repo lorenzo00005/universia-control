@@ -1,0 +1,14 @@
+[Unit]
+Description=Universia Control (CRM + WAHA) con túnel público
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/opt/universia-control/usb/universia-url.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

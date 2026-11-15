@@ -1,0 +1,21 @@
+# Modo "USB portátil": el CRM queda accesible desde internet con un túnel temporal de Cloudflare
+# (sin dominio, sin abrir puertos). El link https://xxxx.trycloudflare.com aparece al arrancar.
+# Uso:  docker compose -f docker-compose.yml -f docker-compose.usb.yml up -d --build
+# Requiere Docker Compose v2.24+ (por "!reset").
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://frontend:80
+    depends_on:
+      - frontend
+
+  # Solo accesible desde la propia máquina; lo de afuera entra por el túnel.
+  frontend:
+    ports: !override
+      - "127.0.0.1:5173:80"
+  backend:
+    ports: !reset []
+  waha:
+    ports: !override
+      - "127.0.0.1:3000:3000"

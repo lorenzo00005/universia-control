@@ -156,6 +156,37 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 En producción Postgres, el backend, WAHA y el frontend **no publican puertos**: todo entra por Caddy. Los WebSockets del panel funcionan por `wss://` sin configuración extra.
 
+## Llevarlo en un USB (modo portátil, sin dominio)
+
+La idea: un **SSD externo USB 3** con su propio Linux. Lo enchufás en cualquier PC, la arrancás desde el USB y el CRM queda funcionando con un link público de Cloudflare (sin dominio, sin abrir puertos, sin tocar el Windows de esa PC).
+
+> Usá un SSD y no un pendrive: Postgres escribe todo el tiempo y los pendrives se gastan y se vuelven lentos.
+
+**Preparar el USB (una sola vez)**
+
+1. Instalá **Ubuntu Server 24.04** en el SSD externo (desde otro USB de instalación). Activá el **cifrado del disco (LUKS)**: si perdés el USB, nadie accede a tus sesiones de WhatsApp ni a los datos de tus clientes. Al arrancar te pide la frase de cifrado.
+2. Instalá Docker: `curl -fsSL https://get.docker.com | sh`
+3. Cloná el proyecto en `/opt`:
+   ```bash
+   sudo git clone https://github.com/lorenzo00005/universia-control.git /opt/universia-control
+   cd /opt/universia-control && sudo cp .env.example .env && sudo nano .env   # claves propias
+   ```
+4. Activá el arranque automático:
+   ```bash
+   sudo cp usb/universia.service /etc/systemd/system/
+   sudo systemctl enable --now universia
+   ```
+
+**Usarlo en cualquier PC:** enchufá el SSD, entrá al menú de arranque de esa PC (F12, F2, Esc o Supr según la marca), elegí el USB y escribí la frase de cifrado. Esperá 1–2 minutos: el link aparece en la pantalla de login (`Universia Control -> https://....trycloudflare.com`) y queda guardado en `/opt/universia-control/URL-ACTUAL.txt`. Ese es el link que usan los operadores desde afuera. Para ver el link desde otra PC conectada a esa misma máquina: `cat /opt/universia-control/URL-ACTUAL.txt`.
+
+**Sobre el link (túnel temporal):**
+- Es **aleatorio** y se mantiene **mientras el túnel siga encendido**. Cambia si apagás o reiniciás la PC, o si el contenedor `cloudflared` se reinicia. Cada vez que arrancás hay que pasarle el link nuevo al equipo.
+- Cloudflare lo ofrece sin garantía de disponibilidad (es para pruebas). Para uso estable conviene un dominio y un túnel con nombre (link fijo).
+- Cualquiera que tenga el link ve la pantalla de login: usá contraseñas largas.
+- La pestaña **WAHA** del panel solo funciona desde la propia máquina; los operadores externos usan Chat, Pipeline y Números (el QR se escanea desde *Números*).
+
+**Cuidado con WhatsApp:** cada vez que lo conectás en otra red, el número entra desde otra IP y ubicación, y eso puede generar alertas. Usalo siempre desde 1 o 2 lugares. Con el USB desenchufado no entran mensajes y WAHA no importa el historial.
+
 ## Conexión con el Pixel de Meta (venta → Purchase)
 
 Pensado para el flujo **anuncio → landing → WhatsApp**. Cuando marcás un chat como venta, el CRM manda un evento `Purchase` a la **API de conversiones** de Meta atribuido al anuncio.
