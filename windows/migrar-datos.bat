@@ -13,7 +13,8 @@ pushd "%SRC%"
 docker compose -f docker-compose.yml -f docker-compose.usb.yml down 2>nul
 docker compose down
 popd
-echo 2/3 Copiando sesiones de WhatsApp...
+echo 2/3 Copiando claves (.env) y sesiones de WhatsApp...
+if not exist "%DST%\.env" if exist "%SRC%\.env" copy "%SRC%\.env" "%DST%\.env" >nul
 robocopy "%SRC%\data" "%DST%\data" /E /R:2 /W:2 /NFL /NDL
 if exist "%SRC%\backups" robocopy "%SRC%\backups" "%DST%\backups" /E /R:2 /W:2 /NFL /NDL
 echo 3/3 Iniciando desde el disco nuevo...
