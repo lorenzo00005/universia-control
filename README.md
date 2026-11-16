@@ -156,9 +156,35 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 En producción Postgres, el backend, WAHA y el frontend **no publican puertos**: todo entra por Caddy. Los WebSockets del panel funcionan por `wss://` sin configuración extra.
 
-## Llevarlo en un USB (modo portátil, sin dominio)
+## Llevarlo en un disco USB
 
-La idea: un **SSD externo USB 3** con su propio Linux. Lo enchufás en cualquier PC, la arrancás desde el USB y el CRM queda funcionando con un link público de Cloudflare (sin dominio, sin abrir puertos, sin tocar el Windows de esa PC).
+Hay dos modos. En los dos, el link público sale de un túnel de Cloudflare sin dominio (`docker-compose.usb.yml`).
+
+### Modo Windows: corre en segundo plano mientras usás la PC
+
+El disco externo queda enchufado a una PC con Windows y **Docker Desktop**. Todo arranca solo al iniciar sesión, sin ventanas, y podés seguir usando Windows normalmente.
+
+1. Copiá la carpeta del proyecto al disco, en `E:\universia-control` (la letra puede ser otra; los scripts la buscan solos).
+2. Una sola vez, doble clic en `windows\instalar-autoarranque.bat`.
+3. Listo: en cada inicio de Windows con el disco conectado, el sistema abre Docker Desktop si hace falta, levanta el CRM y guarda el link en `URL-ACTUAL.txt` (`windows\ver-link.bat` lo muestra).
+
+| Script | Qué hace |
+|---|---|
+| `windows\instalar-autoarranque.bat` | Crea la tarea que arranca todo al iniciar sesión |
+| `windows\desactivar-autoarranque.bat` | La quita |
+| `windows\iniciar-ahora.bat` | Arranca sin reiniciar |
+| `windows\ver-link.bat` | Muestra el link público actual |
+| `windows\parar.bat` | Detiene los servicios (los datos no se borran) |
+
+- **Sesiones de WhatsApp:** viven en `data\waha` dentro del disco.
+- **Base de datos:** Postgres usa un volumen interno de Docker (en el disco de la PC, porque Postgres no funciona bien sobre un disco NTFS/exFAT montado). Cada 6 horas se guarda un respaldo en `backups\` dentro del disco (se conservan los últimos 14). Si enchufás el disco en **otra PC** (sin la base), al arrancar se restaura solo desde el último respaldo.
+- **Si desconectás el disco:** los servicios se detienen solos. Al volver a conectarlo, arrancan de nuevo (revisa cada 30 segundos).
+- **Consumo:** Docker Desktop reserva memoria de la PC (varios GB). Si la PC es justa, limitá WSL2 en `%UserProfile%\.wslconfig`.
+- El log está en `iniciar.log`, dentro de la carpeta del proyecto.
+
+### Modo Linux: el disco arranca su propio sistema
+
+Un **SSD externo USB 3** con su propio Linux. Lo enchufás en cualquier PC, la arrancás desde el USB y el CRM queda funcionando con un link público de Cloudflare (sin dominio, sin abrir puertos, sin tocar el Windows de esa PC).
 
 > Usá un SSD y no un pendrive: Postgres escribe todo el tiempo y los pendrives se gastan y se vuelven lentos.
 
