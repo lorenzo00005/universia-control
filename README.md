@@ -175,6 +175,7 @@ El disco externo queda enchufado a una PC con Windows y **Docker Desktop**. Todo
 | `windows\iniciar-ahora.bat` | Arranca sin reiniciar |
 | `windows\ver-link.bat` | Muestra el link público actual |
 | `windows\parar.bat` | Detiene los servicios (los datos no se borran) |
+| `windows\migrar-datos.bat` | Una vez: detiene todo y copia las sesiones de WhatsApp de una carpeta vieja (por defecto `D:\universia-control`) a este disco, y arranca desde acá |
 
 - **Sesiones de WhatsApp:** viven en `data\waha` dentro del disco.
 - **Base de datos:** Postgres usa un volumen interno de Docker (en el disco de la PC, porque Postgres no funciona bien sobre un disco NTFS/exFAT montado). Cada 6 horas se guarda un respaldo en `backups\` dentro del disco (se conservan los últimos 14). Si enchufás el disco en **otra PC** (sin la base), al arrancar se restaura solo desde el último respaldo.
