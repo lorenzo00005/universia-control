@@ -148,3 +148,14 @@ def test_system_info_requires_login_and_returns_waha_url(client, auth):
 
 def test_system_info_points_to_dashboard_path(client, auth):
     assert client.get("/system/info", headers=auth).json()["waha_dashboard_url"].endswith("/dashboard")
+
+
+def test_system_info_is_admin_only(client):
+    from app.models import User
+    from app.security import hash_password
+
+    with SessionLocal() as db:
+        db.add(User(email="op@test.com", name="Op", role="operator", hashed_password=hash_password("operator-pass-1")))
+        db.commit()
+    token = client.post("/auth/login", data={"username": "op@test.com", "password": "operator-pass-1"}).json()["access_token"]
+    assert client.get("/system/info", headers={"Authorization": f"Bearer {token}"}).status_code == 403

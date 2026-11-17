@@ -43,7 +43,7 @@ export default function App() {
         <span className="brand" title="Universia Control">
           <OrbitMark size={30} />
         </span>
-        {(["chat", "pipeline", "numbers", "waha"] as Tab[]).map((t) => (
+        {(["chat", "pipeline", "numbers", "waha"] as Tab[]).filter((t) => t !== "waha" || user.role === "admin").map((t) => (
           <button key={t} className={tab === t ? "rail-tab active" : "rail-tab"} onClick={() => setTab(t)} aria-current={tab === t ? "page" : undefined}>
             <Icon name={t} />
             <span>{labels[t]}</span>
@@ -66,7 +66,7 @@ export default function App() {
         {tab === "chat" && <Chat user={user} initialConversationId={openConversation} />}
         {tab === "pipeline" && <Pipeline onOpenChat={goToChat} />}
         {tab === "numbers" && <Numbers user={user} />}
-        {tab === "waha" && <Waha />}
+        {tab === "waha" && user.role === "admin" && <Waha />}
       </main>
     </div>
   );
