@@ -2,426 +2,426 @@
 
 # 🟢 Universia Control
 
-**Todos tus números de WhatsApp en una sola bandeja.**
-CRM autoalojado con equipo de operadores, pipeline de ventas y mensajes en tiempo real.
+**All your WhatsApp numbers in a single inbox.**
+Self-hosted CRM with an operator team, a sales pipeline and real-time messages.
 
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![WAHA](https://img.shields.io/badge/WhatsApp-WAHA-25D366?logo=whatsapp&logoColor=white)
-![Estado](https://img.shields.io/badge/estado-en%20desarrollo-orange)
+![Status](https://img.shields.io/badge/status-in%20development-orange)
 
 </div>
 
-> ⚠️ Proyecto en desarrollo, no afiliado a WhatsApp ni a Meta. Se conecta por QR mediante [WAHA](https://waha.devlike.pro), una vía **no oficial**: leé [Limitaciones](#limitaciones-conocidas) antes de usarlo con números importantes.
+> ⚠️ Project under development, not affiliated with WhatsApp or Meta. It connects by QR code through [WAHA](https://waha.devlike.pro), an **unofficial** route: read [Known limitations](#known-limitations) before using it with important numbers.
 
-## Así se ve
+## What it looks like
 
 <p align="center">
-  <img src="docs/screenshots/chat.png" alt="Bandeja de chat con todos los números" width="100%">
+  <img src="docs/screenshots/chat.png" alt="Chat inbox with all numbers" width="100%">
 </p>
 
-Cada número tiene su propio color, que se repite en el avatar, la etiqueta y el pipeline para saber de un vistazo por cuál escribió cada cliente.
+Each number has its own color, repeated on the avatar, the label and the pipeline, so you can see at a glance which number each customer wrote to.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/pipeline.png" alt="Pipeline de ventas"><br><sub>Pipeline de ventas</sub></td>
-    <td width="50%"><img src="docs/screenshots/numeros.png" alt="Gestión de números"><br><sub>Gestión de números</sub></td>
+    <td width="50%"><img src="docs/screenshots/pipeline.png" alt="Sales pipeline"><br><sub>Sales pipeline</sub></td>
+    <td width="50%"><img src="docs/screenshots/numeros.png" alt="Number management"><br><sub>Number management</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/screenshots/login.png" alt="Pantalla de ingreso"><br><sub>Ingreso</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/celular.png" alt="Chat en celular" width="45%"><br><sub>En el celular</sub></td>
+    <td width="50%"><img src="docs/screenshots/login.png" alt="Login screen"><br><sub>Login</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/celular.png" alt="Chat on mobile" width="45%"><br><sub>On mobile</sub></td>
   </tr>
 </table>
 
-> Las capturas usan datos de ejemplo.
+> Screenshots use sample data.
 
-## ¿Qué es?
+## What is it?
 
-Si atendés clientes por WhatsApp con varios teléfonos, terminás saltando de celular en celular. **Universia Control** conecta todos esos números a un solo panel web donde tu equipo ve, responde y organiza todas las conversaciones, con los datos en **tu propio servidor**.
+If you serve customers on WhatsApp with several phones, you end up jumping from phone to phone. **Universia Control** connects all those numbers to a single web panel where your team sees, answers and organizes every conversation, with the data on **your own server**.
 
-## Funciones
+## Features
 
-| | Función | Detalle |
+| | Feature | Details |
 |---|---|---|
-| 💬 | **Chat unificado** | Conversaciones de todos los números juntas; filtro por número y "solo mías"; respuesta desde el panel; tildes de enviado / entregado / leído |
-| ⚡ | **Tiempo real** | Los mensajes aparecen al instante (WebSocket con reconexión automática) |
-| 📱 | **Gestión de números** | Crear instancias, escanear el QR desde el panel, ver el estado (conectado / esperando QR / caído), reiniciar y eliminar. Importa solo las sesiones ya existentes en WAHA |
-| 🧩 | **WAHA integrado** | Pestaña *WAHA* dentro del panel: el dashboard de WAHA (sesiones, QR, API, logs) se ve en el mismo sistema, sin salir del CRM |
-| 🧲 | **Pipeline de ventas** | Tablero kanban (Nuevo → Contactado → Calificado → Propuesta → Ganado / Perdido); se mueve con arrastrar y soltar |
-| 👥 | **Equipo** | Login con JWT, roles administrador / operador y asignación de conversaciones |
-| 📊 | **Datos para reportes y Meta Ads** | Se guardan la hora del primer mensaje y de la primera respuesta, el `ctwa_clid` de anuncios Click-to-WhatsApp (si llega) y el historial de estados de cada sesión |
-| 🩺 | **Diagnóstico** | `GET /webhooks/recent` muestra los últimos webhooks recibidos y los errores de procesamiento |
+| 💬 | **Unified chat** | Conversations from all numbers together; filter by number and "mine only"; reply from the panel; sent / delivered / read ticks |
+| ⚡ | **Real time** | Messages appear instantly (WebSocket with automatic reconnection) |
+| 📱 | **Number management** | Create instances, scan the QR from the panel, see the status (connected / waiting for QR / down), restart and delete. Only imports sessions that already exist in WAHA |
+| 🧩 | **Embedded WAHA** | A *WAHA* tab inside the panel: the WAHA dashboard (sessions, QR, API, logs) is shown in the same system, without leaving the CRM |
+| 🧲 | **Sales pipeline** | Kanban board (*Nuevo → Contactado → Calificado → Propuesta → Ganado / Perdido*); drag and drop to move cards |
+| 👥 | **Team** | JWT login, administrator / operator roles and conversation assignment |
+| 📊 | **Data for reports and Meta Ads** | Stores the time of the first message and the first reply, the `ctwa_clid` from Click-to-WhatsApp ads (when it arrives) and each session's status history |
+| 🩺 | **Diagnostics** | `GET /webhooks/recent` shows the latest webhooks received and processing errors |
 
-## Cómo funciona
+## How it works
 
 ```mermaid
 flowchart LR
-    T1[📱 Número 1] -- QR --> W
-    T2[📱 Número 2] -- QR --> W
-    T3[📱 Número 3] -- QR --> W
-    TN[📱 ... Número 10, 20, N] -- QR --> W
-    W["WAHA<br/>(motor GOWS)"] -- webhook --> B["Backend<br/>FastAPI"]
-    B -- envío de mensajes --> W
+    T1[📱 Number 1] -- QR --> W
+    T2[📱 Number 2] -- QR --> W
+    T3[📱 Number 3] -- QR --> W
+    TN[📱 ... Number 10, 20, N] -- QR --> W
+    W["WAHA<br/>(GOWS engine)"] -- webhook --> B["Backend<br/>FastAPI"]
+    B -- sends messages --> W
     B <--> DB[("PostgreSQL")]
-    B -- WebSocket --> F["Panel web<br/>React + nginx"]
+    B -- WebSocket --> F["Web panel<br/>React + nginx"]
     F -- REST --> B
 ```
 
-**Sin límite de números:** podés conectar tantos como aguante tu servidor (cada sesión de WAHA consume memoria). Ejemplo con 10 números:
+**No limit on numbers:** connect as many as your server can handle (each WAHA session uses memory). Example with 10 numbers:
 
-| Sesión | Etiqueta | Uso |
+| Session | Label | Use |
 |---|---|---|
-| `ventas1` – `ventas4` | Ventas 1 a 4 | Atención comercial |
-| `soporte1` – `soporte3` | Soporte 1 a 3 | Postventa y reclamos |
-| `campana1` – `campana3` | Campaña 1 a 3 | Anuncios Click-to-WhatsApp |
+| `ventas1` – `ventas4` | Ventas 1 to 4 | Sales |
+| `soporte1` – `soporte3` | Soporte 1 to 3 | After-sales and complaints |
+| `campana1` – `campana3` | Campaña 1 to 3 | Click-to-WhatsApp ads |
 
-Todos aparecen juntos en el Chat; se filtran por número desde el panel.
+They all show up together in Chat; filter by number from the panel.
 
-**Mensaje entrante:** el cliente escribe → WAHA lo recibe → llama al webhook del backend → se guarda en Postgres → el backend lo emite por WebSocket → aparece en el panel de todos los operadores.
+**Incoming message:** the customer writes → WAHA receives it → calls the backend webhook → it is stored in Postgres → the backend emits it over WebSocket → it appears in every operator's panel.
 
-**Mensaje saliente:** el operador escribe en el panel → el backend lo envía por WAHA → se guarda y se emite → WAHA confirma la entrega y los tildes se actualizan.
+**Outgoing message:** the operator types in the panel → the backend sends it through WAHA → it is stored and emitted → WAHA confirms delivery and the ticks update.
 
-El backend no habla con WhatsApp directamente sino a través de una **capa de proveedor** (`backend/app/services/providers.py`). Hoy el único proveedor es WAHA; la idea es sumar la Cloud API oficial de Meta para los números críticos sin tocar el resto.
+The backend does not talk to WhatsApp directly but through a **provider layer** (`backend/app/services/providers.py`). Today the only provider is WAHA; the plan is to add Meta's official Cloud API for critical numbers without touching the rest.
 
-| Servicio | Tecnología | Puerto |
+| Service | Technology | Port |
 |---|---|---|
-| `frontend` | React + Vite + TypeScript, servido por nginx | 5173 |
+| `frontend` | React + Vite + TypeScript, served by nginx | 5173 |
 | `backend` | FastAPI + SQLAlchemy | 8000 |
-| `waha` | WAHA (WhatsApp HTTP API), motor GOWS | 3000 (solo local) |
-| `waha-embed` | nginx que deja incrustar el dashboard de WAHA en la pestaña *WAHA* | 3001 (solo local) |
-| `postgres` | PostgreSQL 16 | interno |
+| `waha` | WAHA (WhatsApp HTTP API), GOWS engine | 3000 (local only) |
+| `waha-embed` | nginx that lets the WAHA dashboard be embedded in the *WAHA* tab | 3001 (local only) |
+| `postgres` | PostgreSQL 16 | internal |
 
-## Puesta en marcha
+## Getting started
 
-**Requisitos:** Docker con Docker Compose y un teléfono con WhatsApp por cada número a vincular.
+**Requirements:** Docker with Docker Compose, and a phone with WhatsApp for each number you want to link.
 
 ```bash
 git clone https://github.com/lorenzo00005/universia-control.git
 cd universia-control
-cp .env.example .env        # cambiar TODAS las claves "cambiar-esto"
+cp .env.example .env        # change ALL the "cambiar-esto" values
 docker compose up -d --build
 ```
 
-| URL | Qué es |
+| URL | What it is |
 |---|---|
-| http://localhost:5173 | **Panel** (usuario y contraseña: `ADMIN_EMAIL` / `ADMIN_PASSWORD` del `.env`) |
-| http://localhost:8000/docs | Documentación interactiva de la API |
-| http://localhost:5173 → pestaña **WAHA** | Dashboard de WAHA dentro del panel (se sirve desde `localhost:3001`) |
-| http://localhost:3000/dashboard | Dashboard de WAHA directo (opcional) |
+| http://localhost:5173 | **Panel** (user and password: `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`) |
+| http://localhost:8000/docs | Interactive API documentation |
+| http://localhost:5173 → **WAHA** tab | WAHA dashboard inside the panel (served from `localhost:3001`) |
+| http://localhost:3000/dashboard | WAHA dashboard directly (optional) |
 
-> El administrador se crea solo la primera vez que arranca la base. Si cambiás `ADMIN_EMAIL` o `ADMIN_PASSWORD` después, hay que borrar los datos: `docker compose down -v`.
+> The administrator is created automatically the first time the database starts. If you change `ADMIN_EMAIL` or `ADMIN_PASSWORD` afterwards, you have to delete the data: `docker compose down -v`.
 
-**Dashboard de WAHA:** desde la pestaña *WAHA* del panel (o directo) ingresá con `WAHA_DASHBOARD_USERNAME` / `WAHA_DASHBOARD_PASSWORD`. Al abrirlo por primera vez, en el panel *Workers* tocá el lápiz y pegá `WAHA_API_KEY` del `.env` para que pueda administrar las sesiones.
+**WAHA dashboard:** from the panel's *WAHA* tab (or directly) log in with `WAHA_DASHBOARD_USERNAME` / `WAHA_DASHBOARD_PASSWORD`. The first time you open it, in the *Workers* panel click the pencil and paste `WAHA_API_KEY` from `.env` so it can manage the sessions.
 
-### Variables de entorno
+### Environment variables
 
-| Variable | Para qué |
+| Variable | Purpose |
 |---|---|
-| `POSTGRES_USER` · `POSTGRES_PASSWORD` · `POSTGRES_DB` | Base de datos |
-| `WAHA_API_KEY` | Clave de la API de WAHA |
-| `WAHA_DASHBOARD_USERNAME` · `WAHA_DASHBOARD_PASSWORD` | Acceso al dashboard de WAHA |
-| `WEBHOOK_SECRET` | Secreto en la URL del webhook que WAHA llama |
-| `JWT_SECRET` | Firma de los tokens de sesión |
-| `ADMIN_EMAIL` · `ADMIN_PASSWORD` | Primer usuario administrador |
-| `CORS_ORIGINS` | Orígenes permitidos (solo desarrollo del frontend) |
+| `POSTGRES_USER` · `POSTGRES_PASSWORD` · `POSTGRES_DB` | Database |
+| `WAHA_API_KEY` | WAHA API key |
+| `WAHA_DASHBOARD_USERNAME` · `WAHA_DASHBOARD_PASSWORD` | WAHA dashboard access |
+| `WEBHOOK_SECRET` | Secret in the webhook URL that WAHA calls |
+| `JWT_SECRET` | Signing key for session tokens |
+| `ADMIN_EMAIL` · `ADMIN_PASSWORD` | First administrator user |
+| `CORS_ORIGINS` | Allowed origins (frontend development only) |
 
-## Conectar tu primer número
+## Connecting your first number
 
-1. Abrí la pestaña **Números** → escribí un nombre de sesión (ej. `ventas1`) y una etiqueta → **Crear instancia**.
-2. En el celular: WhatsApp → *Dispositivos vinculados* → *Vincular un dispositivo* → escaneá el QR.
-3. El estado pasa a **Conectado** solo. Mandale un mensaje a ese número desde otro teléfono y aparece en **Chat**.
-4. Repetí los pasos 1–3 por cada número extra (`ventas2`, `ventas3`, … `ventas10`): no hay límite en el software.
+1. Open the **Números** tab → type a session name (e.g. `ventas1`) and a label → **Crear instancia**.
+2. On the phone: WhatsApp → *Linked devices* → *Link a device* → scan the QR.
+3. The status switches to **Connected** by itself. Send a message to that number from another phone and it shows up in **Chat**.
+4. Repeat steps 1–3 for each extra number (`ventas2`, `ventas3`, … `ventas10`): there is no limit in the software.
 
-WAHA avisa al backend de cada sesión mediante un webhook global (`WHATSAPP_HOOK_URL` en `docker-compose.yml`), por eso también funcionan las sesiones creadas desde el dashboard de WAHA. Solo se capturan mensajes **nuevos**: no se importa el historial.
+WAHA notifies the backend of every session through a global webhook (`WHATSAPP_HOOK_URL` in `docker-compose.yml`), so sessions created from the WAHA dashboard work too. Only **new** messages are captured: history is not imported.
 
-## Publicarlo en internet (un dominio, CRM + WAHA)
+## Publishing it on the internet (one domain, CRM + WAHA)
 
-Con `docker-compose.prod.yml` queda todo detrás de **Caddy** con HTTPS automático (Let's Encrypt):
+With `docker-compose.prod.yml` everything sits behind **Caddy** with automatic HTTPS (Let's Encrypt):
 
-| URL | Qué es |
+| URL | What it is |
 |---|---|
-| `https://crm.tudominio.com` | Panel del CRM |
-| `https://waha.tudominio.com` | Dashboard de WAHA (con usuario/clave extra de Caddy, además del login de WAHA). También aparece dentro del panel, en la pestaña *WAHA* |
+| `https://crm.yourdomain.com` | CRM panel |
+| `https://waha.yourdomain.com` | WAHA dashboard (with an extra Caddy user/password on top of the WAHA login). It also appears inside the panel, in the *WAHA* tab |
 
-1. Creá dos registros DNS tipo **A** (`crm` y `waha`) apuntando a la IP del servidor.
-2. En el servidor, completá el `.env` con claves propias y las variables de producción (`CRM_DOMAIN`, `WAHA_DOMAIN`, `WAHA_BASIC_HASH`).
-3. Abrí solo los puertos **80 y 443** (y SSH) en el firewall.
-4. Levantá:
+1. Create two **A** DNS records (`crm` and `waha`) pointing to the server's IP.
+2. On the server, fill in `.env` with your own keys and the production variables (`CRM_DOMAIN`, `WAHA_DOMAIN`, `WAHA_BASIC_HASH`).
+3. Open only ports **80 and 443** (and SSH) in the firewall.
+4. Start it:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
-En producción Postgres, el backend, WAHA y el frontend **no publican puertos**: todo entra por Caddy. Los WebSockets del panel funcionan por `wss://` sin configuración extra.
+In production, Postgres, the backend, WAHA and the frontend **do not publish ports**: everything goes through Caddy. The panel's WebSockets work over `wss://` with no extra configuration.
 
-## Llevarlo en un disco USB
+## Carrying it on a USB drive
 
-Hay dos modos. En los dos, el link público sale de un túnel de Cloudflare sin dominio (`docker-compose.usb.yml`).
+There are two modes. In both, the public link comes from a Cloudflare tunnel with no domain (`docker-compose.usb.yml`).
 
-### Modo Windows: corre en segundo plano mientras usás la PC
+### Windows mode: runs in the background while you use the PC
 
-El disco externo queda enchufado a una PC con Windows y **Docker Desktop**. Todo arranca solo al iniciar sesión, sin ventanas, y podés seguir usando Windows normalmente.
+The external drive stays plugged into a Windows PC with **Docker Desktop**. Everything starts by itself at sign-in, with no windows, and you can keep using Windows normally.
 
-1. Copiá la carpeta del proyecto al disco, en `E:\universia-control` (la letra puede ser otra; los scripts la buscan solos).
-2. Una sola vez, doble clic en `windows\instalar-autoarranque.bat`.
-3. Listo: en cada inicio de Windows con el disco conectado, el sistema abre Docker Desktop si hace falta, levanta el CRM y guarda el link en `URL-ACTUAL.txt` (`windows\ver-link.bat` lo muestra).
+1. Copy the project folder to the drive, at `E:\universia-control` (the letter can be different; the scripts find it on their own).
+2. One time only, double-click `windows\instalar-autoarranque.bat`.
+3. Done: at every Windows sign-in with the drive connected, the system opens Docker Desktop if needed, starts the CRM and saves the link in `URL-ACTUAL.txt` (`windows\ver-link.bat` shows it).
 
-| Script | Qué hace |
+| Script | What it does |
 |---|---|
-| `windows\instalar-autoarranque.bat` | Crea la tarea que arranca todo al iniciar sesión |
-| `windows\desactivar-autoarranque.bat` | La quita |
-| `windows\iniciar-ahora.bat` | Arranca sin reiniciar |
-| `windows\ver-link.bat` | Muestra el link público actual |
-| `windows\parar.bat` | Detiene los servicios (los datos no se borran) |
-| `windows\migrar-datos.bat` | Una vez: detiene todo y copia las sesiones de WhatsApp de una carpeta vieja (por defecto `D:\universia-control`) a este disco, y arranca desde acá |
+| `windows\instalar-autoarranque.bat` | Creates the task that starts everything at sign-in |
+| `windows\desactivar-autoarranque.bat` | Removes it |
+| `windows\iniciar-ahora.bat` | Starts without rebooting |
+| `windows\ver-link.bat` | Shows the current public link |
+| `windows\parar.bat` | Stops the services (data is not deleted) |
+| `windows\migrar-datos.bat` | One time: stops everything and copies the WhatsApp sessions from an old folder (by default `D:\universia-control`) to this drive, then starts from here |
 
-- **Sesiones de WhatsApp:** viven en `data\waha` dentro del disco.
-- **Base de datos:** Postgres usa un volumen interno de Docker (en el disco de la PC, porque Postgres no funciona bien sobre un disco NTFS/exFAT montado). Cada 6 horas se guarda un respaldo en `backups\` dentro del disco (se conservan los últimos 14). Si enchufás el disco en **otra PC** (sin la base), al arrancar se restaura solo desde el último respaldo.
-- **Si desconectás el disco:** los servicios se detienen solos. Al volver a conectarlo, arrancan de nuevo (revisa cada 30 segundos).
-- **Consumo:** Docker Desktop reserva memoria de la PC (varios GB). Si la PC es justa, limitá WSL2 en `%UserProfile%\.wslconfig`.
-- El log está en `iniciar.log`, dentro de la carpeta del proyecto.
+- **WhatsApp sessions:** they live in `data\waha` on the drive.
+- **Database:** Postgres uses an internal Docker volume (on the PC's disk, because Postgres does not work well on a mounted NTFS/exFAT drive). A backup is saved every 6 hours to `backups\` on the drive (the last 14 are kept). If you plug the drive into **another PC** (without the database), it restores itself from the latest backup on startup.
+- **If you unplug the drive:** the services stop by themselves. When you plug it back in, they start again (it checks every 30 seconds).
+- **Resource use:** Docker Desktop reserves PC memory (several GB). If the PC is tight on RAM, limit WSL2 in `%UserProfile%\.wslconfig`.
+- The log is in `iniciar.log`, inside the project folder.
 
-### Modo Linux: el disco arranca su propio sistema
+### Linux mode: the drive boots its own system
 
-Un **SSD externo USB 3** con su propio Linux. Lo enchufás en cualquier PC, la arrancás desde el USB y el CRM queda funcionando con un link público de Cloudflare (sin dominio, sin abrir puertos, sin tocar el Windows de esa PC).
+An **external USB 3 SSD** with its own Linux. Plug it into any PC, boot that PC from the USB and the CRM comes up with a public Cloudflare link (no domain, no open ports, without touching that PC's Windows).
 
-> Usá un SSD y no un pendrive: Postgres escribe todo el tiempo y los pendrives se gastan y se vuelven lentos.
+> Use an SSD, not a flash drive: Postgres writes constantly and flash drives wear out and slow down.
 
-**Preparar el USB (una sola vez)**
+**Preparing the USB (one time)**
 
-1. Instalá **Ubuntu Server 24.04** en el SSD externo (desde otro USB de instalación). Activá el **cifrado del disco (LUKS)**: si perdés el USB, nadie accede a tus sesiones de WhatsApp ni a los datos de tus clientes. Al arrancar te pide la frase de cifrado.
-2. Instalá Docker: `curl -fsSL https://get.docker.com | sh`
-3. Cloná el proyecto en `/opt`:
+1. Install **Ubuntu Server 24.04** on the external SSD (from another installation USB). Enable **disk encryption (LUKS)**: if you lose the USB, nobody can access your WhatsApp sessions or your customers' data. It asks for the passphrase at boot.
+2. Install Docker: `curl -fsSL https://get.docker.com | sh`
+3. Clone the project into `/opt`:
    ```bash
    sudo git clone https://github.com/lorenzo00005/universia-control.git /opt/universia-control
-   cd /opt/universia-control && sudo cp .env.example .env && sudo nano .env   # claves propias
+   cd /opt/universia-control && sudo cp .env.example .env && sudo nano .env   # your own keys
    ```
-4. Activá el arranque automático:
+4. Enable automatic startup:
    ```bash
    sudo cp usb/universia.service /etc/systemd/system/
    sudo systemctl enable --now universia
    ```
 
-**Usarlo en cualquier PC:** enchufá el SSD, entrá al menú de arranque de esa PC (F12, F2, Esc o Supr según la marca), elegí el USB y escribí la frase de cifrado. Esperá 1–2 minutos: el link aparece en la pantalla de login (`Universia Control -> https://....trycloudflare.com`) y queda guardado en `/opt/universia-control/URL-ACTUAL.txt`. Ese es el link que usan los operadores desde afuera. Para ver el link desde otra PC conectada a esa misma máquina: `cat /opt/universia-control/URL-ACTUAL.txt`.
+**Using it on any PC:** plug in the SSD, open that PC's boot menu (F12, F2, Esc or Del depending on the brand), choose the USB and type the encryption passphrase. Wait 1–2 minutes: the link appears on the login screen (`Universia Control -> https://....trycloudflare.com`) and is saved in `/opt/universia-control/URL-ACTUAL.txt`. That is the link operators use from outside. To see the link from another PC connected to that machine: `cat /opt/universia-control/URL-ACTUAL.txt`.
 
-**Sobre el link (túnel temporal):**
-- Es **aleatorio** y se mantiene **mientras el túnel siga encendido**. Cambia si apagás o reiniciás la PC, o si el contenedor `cloudflared` se reinicia. Cada vez que arrancás hay que pasarle el link nuevo al equipo.
-- Cloudflare lo ofrece sin garantía de disponibilidad (es para pruebas). Para uso estable conviene un dominio y un túnel con nombre (link fijo).
-- Cualquiera que tenga el link ve la pantalla de login: usá contraseñas largas.
-- La pestaña **WAHA** del panel solo funciona desde la propia máquina; los operadores externos usan Chat, Pipeline y Números (el QR se escanea desde *Números*).
+**About the link (temporary tunnel):**
+- It is **random** and stays the same **as long as the tunnel keeps running**. It changes if you power off or reboot the PC, or if the `cloudflared` container restarts. Each time you start up, you have to give the new link to the team.
+- Cloudflare offers it with no availability guarantee (it is meant for testing). For stable use, a domain and a named tunnel (fixed link) are better.
+- Anyone with the link sees the login screen: use long passwords.
+- The panel's **WAHA** tab only works from the machine itself; external operators use Chat, Pipeline and Números (the QR is scanned from *Números*).
 
-**Cuidado con WhatsApp:** cada vez que lo conectás en otra red, el número entra desde otra IP y ubicación, y eso puede generar alertas. Usalo siempre desde 1 o 2 lugares. Con el USB desenchufado no entran mensajes y WAHA no importa el historial.
+**Careful with WhatsApp:** every time you connect from a different network, the number logs in from another IP and location, which can trigger alerts. Always use it from 1 or 2 places. With the USB unplugged, no messages come in and WAHA does not import history.
 
-## Conexión con el Pixel de Meta (venta → Purchase)
+## Meta Pixel connection (sale → Purchase)
 
-Pensado para el flujo **anuncio → landing → WhatsApp**. Cuando marcás un chat como venta, el CRM manda un evento `Purchase` a la **API de conversiones** de Meta atribuido al anuncio.
+Designed for the **ad → landing → WhatsApp** flow. When you mark a chat as a sale, the CRM sends a `Purchase` event to Meta's **Conversions API**, attributed to the ad.
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente
+    participant C as Customer
     participant L as Landing (Pixel + tracker.js)
     participant R as CRM
     participant M as Meta
-    C->>L: clic en el anuncio (fbclid)
+    C->>L: clicks the ad (fbclid)
     L->>R: POST /track/click (fbclid, _fbc, _fbp, utm, URL)
-    R-->>L: código corto, ej. K7X2QM
-    C->>R: WhatsApp: "Hola, quiero info [K7X2QM]"
-    R->>R: une el chat con el clic
-    R->>M: Marcar como venta → Purchase (fbc, fbp, IP, teléfono hasheado, monto)
+    R-->>L: short code, e.g. K7X2QM
+    C->>R: WhatsApp: "Hi, I want info [K7X2QM]"
+    R->>R: links the chat to the click
+    R->>M: Mark as sale → Purchase (fbc, fbp, IP, hashed phone, amount)
 ```
 
-**Configuración**
+**Setup**
 
-1. En el Administrador de eventos de Meta: copiá el **ID del Pixel** y generá un **token** de la API de conversiones. Ponelos en `.env` (`META_PIXEL_ID`, `META_ACCESS_TOKEN`) y agregá el dominio de tu landing en `LANDING_ORIGINS`.
-2. En tu landing, después del código del Pixel, pegá el script (ver [`landing/ejemplo.html`](landing/ejemplo.html)):
+1. In Meta's Events Manager: copy the **Pixel ID** and generate a Conversions API **token**. Put them in `.env` (`META_PIXEL_ID`, `META_ACCESS_TOKEN`) and add your landing's domain to `LANDING_ORIGINS`.
+2. In your landing page, after the Pixel code, paste the script (see [`landing/ejemplo.html`](landing/ejemplo.html)):
 
 ```html
-<script src="tracker.js" data-crm="https://crm.tudominio.com"></script>
-<a href="#" data-wa-number="5491100000000" data-wa-text="Hola, quiero información">Escribinos</a>
+<script src="tracker.js" data-crm="https://crm.yourdomain.com"></script>
+<a href="#" data-wa-number="5491100000000" data-wa-text="Hi, I want information">Write to us</a>
 ```
 
-3. Para probar sin afectar campañas, cargá `META_TEST_EVENT_CODE` (sección *Probar eventos* de Meta) y mirá que los eventos aparezcan ahí.
-4. En el chat, panel derecho: **Marcar como venta** (con monto opcional). El chat pasa a *Ganado* y el evento se envía en segundo plano. Podés ver el estado de cada envío en `GET /conversions` y reintentar los fallidos con `POST /conversions/{id}/retry`.
+3. To test without affecting campaigns, set `META_TEST_EVENT_CODE` (Meta's *Test events* section) and check that events show up there.
+4. In the chat, right-hand panel: **Marcar como venta** (with an optional amount). The chat moves to *Ganado* and the event is sent in the background. You can see the status of each delivery at `GET /conversions` and retry failed ones with `POST /conversions/{id}/retry`.
 
-**Qué se envía:** `fbc` y `fbp` del clic, IP y navegador del clic, URL de la landing, teléfono normalizado y hasheado con SHA-256 (nunca en claro), monto y un `event_id`.
+**What is sent:** the click's `fbc` and `fbp`, the click's IP and browser, the landing URL, the phone number normalized and hashed with SHA-256 (never in clear), the amount and an `event_id`.
 
-**Límites a tener en cuenta**
-- Si el cliente borra el código `[XXXXXX]` del mensaje, ese chat queda sin atribución al anuncio (el evento igual se envía con teléfono hasheado, con peor coincidencia).
-- Los contactos que WhatsApp entrega como `@lid` no traen teléfono: el evento sale sin `ph`.
-- Si el código llega al primer mensaje pero el cliente escribe desde otro número que el que usó en la landing, la atribución sigue funcionando porque se basa en el código, no en el teléfono.
-- Meta atribuye dentro de su ventana (hasta 7 días desde el clic, según la configuración de tu cuenta).
+**Limits to keep in mind**
+- If the customer deletes the `[XXXXXX]` code from the message, that chat has no ad attribution (the event is still sent with the hashed phone, with a worse match).
+- Contacts that WhatsApp delivers as `@lid` carry no phone number: the event goes out without `ph`.
+- If the code arrives in the first message but the customer writes from a different number than the one used on the landing page, attribution still works because it is based on the code, not the phone.
+- Meta attributes within its own window (up to 7 days from the click, depending on your account settings).
 
 ## API
 
-Documentación completa en `/docs`. Lo principal:
+Full documentation at `/docs`. The main endpoints:
 
-| Endpoint | Función |
+| Endpoint | Purpose |
 |---|---|
-| `POST /auth/login` · `GET /auth/me` | Autenticación |
-| `POST /track/click` (público) · `POST /conversations/{id}/sale` · `GET /conversions` · `POST /conversions/{id}/retry` | Seguimiento de clics y envío de ventas a Meta |
-| `GET/POST /numbers` · `POST /numbers/sync` · `GET /numbers/{id}/qr` · `/status` · `POST /numbers/{id}/restart` · `DELETE /numbers/{id}` | Números de WhatsApp |
-| `GET /conversations` · `GET/POST /conversations/{id}/messages` · `PATCH /conversations/{id}` · `POST /conversations/{id}/read` | Bandeja |
-| `GET/POST /stages` | Etapas del pipeline |
-| `GET /users` | Operadores |
-| `POST /webhooks/waha/{secret}` · `GET /webhooks/recent` | Entrada de eventos de WAHA y diagnóstico |
-| `WS /ws?token=` | Eventos en tiempo real |
+| `POST /auth/login` · `GET /auth/me` | Authentication |
+| `POST /track/click` (public) · `POST /conversations/{id}/sale` · `GET /conversions` · `POST /conversions/{id}/retry` | Click tracking and sending sales to Meta |
+| `GET/POST /numbers` · `POST /numbers/sync` · `GET /numbers/{id}/qr` · `/status` · `POST /numbers/{id}/restart` · `DELETE /numbers/{id}` | WhatsApp numbers |
+| `GET /conversations` · `GET/POST /conversations/{id}/messages` · `PATCH /conversations/{id}` · `POST /conversations/{id}/read` | Inbox |
+| `GET/POST /stages` | Pipeline stages |
+| `GET /users` | Operators |
+| `POST /webhooks/waha/{secret}` · `GET /webhooks/recent` | WAHA event intake and diagnostics |
+| `WS /ws?token=` | Real-time events |
 
-## Estructura del proyecto
+## Project structure
 
 ```
 ├── docker-compose.yml        # postgres + waha + backend + frontend
-├── .env.example              # plantilla de configuración
+├── .env.example              # configuration template
 ├── backend/
 │   ├── app/
-│   │   ├── routers/          # un archivo por recurso
-│   │   ├── services/         # proveedor de mensajería, ingesta de webhooks, hub de tiempo real
+│   │   ├── routers/          # one file per resource
+│   │   ├── services/         # messaging provider, webhook intake, real-time hub
 │   │   └── models.py · schemas.py · security.py · deps.py · main.py
 │   └── tests/                # pytest
 └── frontend/
     └── src/
         ├── pages/            # Chat, Pipeline, Numbers, Login
-        └── hooks/            # useRealtime (WebSocket con reconexión)
+        └── hooks/            # useRealtime (WebSocket with reconnection)
 ```
 
-## Desarrollo
+## Development
 
 ```bash
-# Backend (los tests usan SQLite en memoria)
+# Backend (tests use in-memory SQLite)
 cd backend
 pip install -r requirements.txt
 python -m pytest -q
 
-# Frontend (proxy al backend en :8000)
+# Frontend (proxies to the backend on :8000)
 cd frontend
 npm install
 npm run dev          # http://localhost:5173
-npm test             # pruebas del chat (vitest)
+npm test             # chat tests (vitest)
 npm run build
 ```
 
-## Preguntas frecuentes
+## FAQ
 
-**¿Por qué WAHA y no la API oficial de WhatsApp?**
-WAHA permite usar los teléfonos que ya tenés, sin aprobación de Meta ni costo por conversación. La contra: es una conexión no oficial, con los riesgos de abajo.
+**Why WAHA and not the official WhatsApp API?**
+WAHA lets you use the phones you already have, with no Meta approval and no per-conversation cost. The downside: it is an unofficial connection, with the risks listed below.
 
-**¿Me pueden bloquear el número?**
-Sí, es posible con cualquier herramienta no oficial. Depende más del número y del uso (número nuevo, mensajes a desconocidos, volumen, IP de datacenter) que del software. Para números críticos conviene la Cloud API oficial.
+**Can my number get blocked?**
+Yes, it is possible with any unofficial tool. It depends more on the number and how it is used (new number, messages to strangers, volume, datacenter IP) than on the software. For critical numbers, the official Cloud API is a better fit.
 
-**¿Se pierden mis datos si reinicio?**
-No: la base vive en un volumen de Docker y las sesiones de WhatsApp en `data/waha/sessions`. `docker compose down -v` sí borra la base.
+**Do I lose my data if I restart?**
+No: the database lives in a Docker volume and the WhatsApp sessions in `data/waha/sessions`. `docker compose down -v` does delete the database.
 
-## Limitaciones conocidas
+## Known limitations
 
-- **Vía no oficial:** las sesiones pueden caerse y los números pueden ser bloqueados por WhatsApp. Leé la [guía para cuidar tus números](#cómo-cuidar-tus-números-guía-anti-bloqueo).
-- Las tablas se crean con `create_all`; falta migrar a **Alembic** antes de producción.
-- El tiempo real usa un hub en memoria; con más de un worker hay que pasarlo a Redis pub/sub.
-- Todavía no se envían ni se muestran **archivos multimedia**; los grupos y los estados se ignoran.
-- Fijar la versión de la imagen de WAHA (`devlikeapro/waha:latest` en el compose) antes de producción.
+- **Unofficial route:** sessions can drop and numbers can be blocked by WhatsApp. Read the [guide to protecting your numbers](#how-to-protect-your-numbers-anti-ban-guide).
+- Tables are created with `create_all`; migrating to **Alembic** is still needed before production.
+- Real time uses an in-memory hub; with more than one worker it has to move to Redis pub/sub.
+- **Media files** are not yet sent or shown; groups and statuses are ignored.
+- Pin the WAHA image version (`devlikeapro/waha:latest` in the compose file) before production.
 
-### Cómo cuidar tus números (guía anti-bloqueo)
+### How to protect your numbers (anti-ban guide)
 
-WAHA se conecta por QR como un dispositivo vinculado, algo que WhatsApp no permite oficialmente: sus [normas de mensajería](https://www.whatsapp.com/legal/messaging-guidelines) prohíben los clientes no oficiales, el envío masivo y la automatización. **No existe una práctica que garantice 0 % de riesgo**; el objetivo es parecerse a una persona real atendiendo clientes y mantener las denuncias en cero. Meta no publica los umbrales exactos: las cifras de abajo son referencias de la documentación de WAHA y de proveedores del rubro (Green API, Whapi, Z-API, Periskope), no reglas oficiales.
+WAHA connects by QR as a linked device, something WhatsApp does not officially allow: its [messaging guidelines](https://www.whatsapp.com/legal/messaging-guidelines) prohibit unofficial clients, bulk sending and automation. **No practice guarantees 0% risk**; the goal is to look like a real person serving customers and to keep reports at zero. Meta does not publish the exact thresholds: the figures below are references from WAHA's documentation and from providers in the field (Green API, Whapi, Z-API, Periskope), not official rules.
 
-#### 1. La regla que más pesa: que el cliente escriba primero
+#### 1. The rule that matters most: let the customer write first
 
-La propia guía de WAHA lo pone primero: el bot no debería iniciar conversaciones, sino responder. Este CRM está pensado para eso (anuncio → landing → el cliente toca el botón de WhatsApp y te escribe). Iniciar chats con desconocidos es lo que más bloqueos causa, porque cada "Bloquear y reportar" resta confianza al número. Un puñado de reportes seguidos alcanza para que lo limiten.
+WAHA's own guide puts it first: the bot should not start conversations, only reply. This CRM is designed for that (ad → landing → the customer taps the WhatsApp button and writes to you). Starting chats with strangers causes the most blocks, because every "Block and report" lowers the number's trust. A handful of reports in a row is enough to get it restricted.
 
-#### 2. Antes de conectar un número
+#### 2. Before connecting a number
 
-- Usá **números calientes**: con historia real de uso (meses de chats, contactos que lo tienen guardado), no un chip recién comprado.
-- Si el número es nuevo, **no escanees el QR el mismo día** del registro: esperá al menos un día y usalo antes como una persona (chats con conocidos, fotos, audios, algún grupo chico).
-- Nunca conectes un chip que **nunca recibió un mensaje de WhatsApp**: un número sin historial que de golpe manda mensajes es el perfil típico de una granja de spam.
-- Completá el perfil: **foto, nombre y estado**.
-- Seguí **abriendo la app en el celular** de vez en cuando y respondiendo algo a mano. Un número usado solo por automatización es más sospechoso.
-- Pedí a los clientes que **guarden tu número** en sus contactos: baja mucho las denuncias por "remitente desconocido".
-- Mantené un número de **tu país** y, si podés, un servidor con IP del mismo país o cercana; los desajustes (número argentino conectado siempre desde otro continente) suman señales negativas.
+- Use **warm numbers**: with real usage history (months of chats, contacts who have it saved), not a freshly bought SIM.
+- If the number is new, **do not scan the QR on the day of registration**: wait at least a day and use it like a person first (chats with acquaintances, photos, voice notes, a small group).
+- Never connect a SIM that **has never received a WhatsApp message**: a number with no history that suddenly sends messages is the typical spam-farm profile.
+- Complete the profile: **photo, name and status**.
+- Keep **opening the app on the phone** from time to time and replying to something by hand. A number used only for automation looks more suspicious.
+- Ask customers to **save your number** in their contacts: it greatly reduces "unknown sender" reports.
+- Keep a number from **your own country** and, if you can, a server with an IP from the same or a nearby country; mismatches (an Argentine number always connected from another continent) add negative signals.
 
-#### 3. Calentamiento y ritmo
+#### 3. Warm-up and pace
 
-Referencia habitual de los proveedores para un número nuevo (adaptala, no la tomes como regla):
+A common reference from providers for a new number (adapt it, do not take it as a rule):
 
-| Momento | Qué hacer |
+| When | What to do |
 |---|---|
-| Día 1 | Chats manuales con 3–6 contactos que respondan. Texto, alguna imagen o sticker. Sin automatizar. |
-| Día 2 | Subir a 10–15 conversaciones. Mensajes variados, ~1 por minuto como máximo. |
-| Días 3–6 | Sumar contactos y mensajes de a poco; participar en 1–2 grupos chicos (3–5 personas). |
-| Día 7 en adelante | Entre ~12 y ~100 mensajes por día, según respuestas. Después del día 10 el número es bastante más resistente. |
-| Semanas siguientes | Escalar por **semana**, no por día. Subir 10–20 % por vez, nunca saltar de 50 a 5.000. |
+| Day 1 | Manual chats with 3–6 contacts who reply. Text, maybe an image or sticker. No automation. |
+| Day 2 | Go up to 10–15 conversations. Varied messages, ~1 per minute at most. |
+| Days 3–6 | Add contacts and messages gradually; join 1–2 small groups (3–5 people). |
+| Day 7 onward | Between ~12 and ~100 messages per day, depending on replies. After day 10 the number is much more resilient. |
+| Following weeks | Scale **weekly**, not daily. Increase 10–20% at a time, never jump from 50 to 5,000. |
 
-Límites prudentes que se repiten en las guías: un número nuevo no debería pasar de unos **50 mensajes por día**, ni de ~30 por hora, y conviene mantener que **por lo menos 3 de cada 10 mensajes enviados reciban respuesta**. Un número con 10 días de calentamiento aguanta solo un par de decenas de conversaciones **nuevas** por día. Como en este CRM la mayoría son respuestas a clientes que escribieron primero, esos límites rara vez se rozan; sí importan si vas a escribirles a contactos.
+Prudent limits that repeat across guides: a new number should not exceed about **50 messages per day**, or ~30 per hour, and it helps to keep **at least 3 out of every 10 messages sent receiving a reply**. A number with 10 days of warm-up only handles a couple of dozen **new** conversations per day. Since in this CRM most messages are replies to customers who wrote first, those limits are rarely approached; they do matter if you will write to contacts first.
 
-#### 4. Cómo responder sin parecer un bot
+#### 4. How to reply without looking like a bot
 
-Estas son las recomendaciones de la guía oficial de WAHA para el flujo de respuesta:
+These are the recommendations from WAHA's official guide for the reply flow:
 
-1. **Marcar como leído** antes de contestar (`POST /api/sendSeen`).
-2. **Mostrar "escribiendo…"** (`startTyping`), esperar un tiempo aleatorio proporcional al largo del mensaje y **recién ahí enviar** (`stopTyping` + `sendText`).
-3. **Evitar tiempos fijos**: enviar, esperar entre 30 y 60 segundos al azar y recién entonces el siguiente.
-4. **Variar el texto** y personalizar (por ejemplo con el nombre). No mandar el mismo bloque a muchas personas en pocos minutos.
-5. Si le escribís a alguien por primera vez: **un solo mensaje corto**, sin links ni textos largos.
-6. **Enviar en tandas**: por ejemplo, como máximo 4 mensajes por hora a un mismo contacto que ya respondió, y pausar antes de la siguiente tanda.
-7. Usar solo links **HTTPS** y evitar los que ya fueron marcados como spam.
-8. Cuidar el contenido: los temas con palabras de estafas financieras ("PIX", "boleto", "tarjeta" y similares) se vigilan más.
+1. **Mark as read** before answering (`POST /api/sendSeen`).
+2. **Show "typing…"** (`startTyping`), wait a random time proportional to the message length and **only then send** (`stopTyping` + `sendText`).
+3. **Avoid fixed timings**: send, wait a random 30 to 60 seconds and only then send the next one.
+4. **Vary the text** and personalize it (for example with the name). Do not send the same block to many people within a few minutes.
+5. If you write to someone for the first time: **a single short message**, with no links or long texts.
+6. **Send in batches**: for example, at most 4 messages per hour to the same contact who has already replied, and pause before the next batch.
+7. Use only **HTTPS** links and avoid ones already flagged as spam.
+8. Watch the content: topics with financial-scam words ("PIX", "boleto", "card" and similar) are monitored more closely.
 
-> Hoy el CRM envía el mensaje directo por `sendText`. Los pasos 1 y 2 (visto y "escribiendo…" con pausa aleatoria) están en la hoja de ruta.
+> Today the CRM sends the message directly through `sendText`. Steps 1 and 2 (seen and "typing…" with a random pause) are on the roadmap.
 
-#### 5. Qué evitar
+#### 5. What to avoid
 
-- Escribirle en masa a desconocidos, usar **listas compradas** o contactar a quien nunca te respondió.
-- Mensajes idénticos a muchos contactos, o a intervalos exactos (cada 10 s).
-- **Ignorar un pedido de baja**: si alguien dice "no me escribas más", dejá de escribirle de inmediato.
-- Agregar mucha gente a grupos de golpe (como mucho 15–20 contactos por día).
-- Usar **varias herramientas no oficiales** a la vez sobre el mismo número, o apps modificadas (GBWhatsApp y similares).
-- Instalar forks dudosos de librerías de WhatsApp: ya hubo un paquete de npm que robaba sesiones. Usá solo la imagen oficial de WAHA y fijá su versión.
+- Mass-messaging strangers, using **purchased lists** or contacting people who never replied to you.
+- Identical messages to many contacts, or at exact intervals (every 10 s).
+- **Ignoring an opt-out**: if someone says "don't write to me anymore", stop writing to them immediately.
+- Adding many people to groups at once (at most 15–20 contacts per day).
+- Using **several unofficial tools** at once on the same number, or modified apps (GBWhatsApp and similar).
+- Installing dubious forks of WhatsApp libraries: there was already an npm package that stole sessions. Use only the official WAHA image and pin its version.
 
-#### 6. Repartí la carga y aislá el riesgo
+#### 6. Spread the load and isolate the risk
 
-El CRM acepta tantos números como quieras: aprovechalo. Repartir los contactos entre varios números baja el volumen de cada uno, y separar roles (por ejemplo, **ventas**, **soporte** y **campañas**) evita que el problema de un número arrastre al resto.
+The CRM accepts as many numbers as you want: take advantage of it. Spreading contacts across several numbers lowers each one's volume, and separating roles (for example **sales**, **support** and **campaigns**) keeps one number's problem from dragging down the rest.
 
-#### 7. Señales de alerta y qué hacer
+#### 7. Warning signs and what to do
 
-| Señal | Qué significa | Qué hacer |
+| Sign | What it means | What to do |
 |---|---|---|
-| Error `463` al escribir a un contacto nuevo, pero la sesión sigue en `WORKING` | Restricción temporal para contactar gente nueva | **No reinicies, no cierres sesión ni vuelvas a vincular.** Pausá los contactos nuevos: se levanta sola. |
-| Error `475` / estado `CAPPED` | Cupo de contactos nuevos agotado en el ciclo | Igual que arriba: no reiniciar, esperar el reinicio del ciclo. |
-| Avisos `FIRST_WARNING` / `SECOND_WARNING` | WhatsApp avisa que el ritmo es excesivo | Bajar el ritmo ya. |
-| Mensaje "tu cuenta está restringida" en el celular | Actividad con aspecto de spam o automatización | Frenar todo envío, volver a usar el número a mano unos días. |
-| La sesión se cae seguido | Puede ser inestabilidad o un castigo previo | Revisar el panel de Números; si se repite, reducir actividad y no reconectar en bucle. |
+| Error `463` when writing to a new contact, but the session stays `WORKING` | Temporary restriction on contacting new people | **Do not restart, log out or re-link.** Pause new contacts: it lifts by itself. |
+| Error `475` / status `CAPPED` | New-contact quota used up in the cycle | Same as above: do not restart, wait for the cycle to reset. |
+| `FIRST_WARNING` / `SECOND_WARNING` notices | WhatsApp warns that the pace is excessive | Slow down now. |
+| "Your account is restricted" message on the phone | Activity that looks like spam or automation | Stop all sending, go back to using the number by hand for a few days. |
+| The session drops often | Could be instability or an earlier penalty | Check the Números panel; if it repeats, reduce activity and do not reconnect in a loop. |
 
-Desde 2025 varios proveedores reportan que las suspensiones llegan **sin advertencia previa**, así que el monitoreo y los backups de sesión importan.
+Since 2025 several providers report that suspensions arrive **without prior warning**, so monitoring and session backups matter.
 
-#### 8. Si el número igual se bloquea
+#### 8. If the number gets blocked anyway
 
-- Pedí la revisión desde la propia app de WhatsApp.
-- **No lo reconectes igual**: tras un bloqueo el calentamiento se reinicia de cero y el segundo bloqueo llega más rápido.
-- Si tenés que usar un número nuevo, calentalo desde el día 1 y **no lo configures idéntico** al anterior (mismo nombre, foto, descripción y mensajes): WhatsApp puede asociarlos.
+- Request a review from the WhatsApp app itself.
+- **Do not reconnect it the same way**: after a block the warm-up starts from zero and the second block comes sooner.
+- If you have to use a new number, warm it up from day 1 and **do not set it up identically** to the previous one (same name, photo, description and messages): WhatsApp may associate them.
 
-#### 9. Cuándo conviene la API oficial
+#### 9. When the official API makes sense
 
-Para **campañas de envío masivo**, para números críticos del negocio o si no podés arriesgar el número, la vía correcta es la **Cloud API oficial de Meta**. Está en la hoja de ruta como proveedor alternativo y, además, es la que entrega el `ctwa_clid` de los anuncios Click-to-WhatsApp.
+For **bulk-sending campaigns**, for business-critical numbers, or if you cannot risk the number, the right route is Meta's **official Cloud API**. It is on the roadmap as an alternative provider and is also the one that delivers the `ctwa_clid` from Click-to-WhatsApp ads.
 
-#### Checklist rápido
+#### Quick checklist
 
-- [ ] El cliente escribe primero (landing, anuncio o botón de WhatsApp).
-- [ ] Número con historia real, perfil completo y contactos que lo tienen guardado.
-- [ ] Calentado antes de conectarlo y escalado por semana.
-- [ ] Respuestas variadas, con pausas, y sin mensajes idénticos en tandas.
-- [ ] Pedidos de baja respetados al instante.
-- [ ] Carga repartida entre varios números por rol.
-- [ ] Versión de WAHA fija y backup de las sesiones.
-- [ ] Si aparece 463 o 475: no reiniciar, esperar y bajar el ritmo.
+- [ ] The customer writes first (landing page, ad or WhatsApp button).
+- [ ] Number with real history, complete profile and contacts who have it saved.
+- [ ] Warmed up before connecting and scaled weekly.
+- [ ] Varied replies, with pauses, and no identical messages in batches.
+- [ ] Opt-out requests honored instantly.
+- [ ] Load spread across several numbers by role.
+- [ ] Fixed WAHA version and session backups.
+- [ ] If 463 or 475 appears: do not restart, wait and slow down.
 
-## Hoja de ruta
+## Roadmap
 
-- [ ] Reportes: tiempos de respuesta, volumen por número y conversiones por campaña
-- [x] Meta Conversions API: venta → Purchase desde la landing (pendiente: otros eventos al mover etapas, Cloud API con ctwa_clid)
-- [ ] Monitoreo de sesiones caídas con alertas y reconexión automática
-- [ ] Backups automáticos de la base y de las sesiones
-- [ ] Envío más humano: marcar como leído y "escribiendo…" con pausa aleatoria antes de cada respuesta
-- [ ] Alertas de errores 463/475 y avisos de WhatsApp en el panel de Números
-- [ ] Imágenes, audios y documentos
-- [ ] Alta de operadores desde el panel
-- [ ] Migración a AWS
-- [ ] Cloud API oficial como proveedor alternativo
+- [ ] Reports: response times, volume per number and conversions per campaign
+- [x] Meta Conversions API: sale → Purchase from the landing page (pending: other events when moving stages, Cloud API with ctwa_clid)
+- [ ] Monitoring of dropped sessions with alerts and automatic reconnection
+- [ ] Automatic backups of the database and sessions
+- [ ] More human-like sending: mark as read and "typing…" with a random pause before each reply
+- [ ] Alerts for 463/475 errors and WhatsApp warnings in the Números panel
+- [ ] Images, audio and documents
+- [ ] Operator sign-up from the panel
+- [ ] Migration to AWS
+- [ ] Official Cloud API as an alternative provider
